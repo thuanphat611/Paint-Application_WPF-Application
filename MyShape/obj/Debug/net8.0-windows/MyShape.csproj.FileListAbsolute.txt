@@ -1,0 +1,11 @@
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\bin\Debug\net8.0-windows\MyShape.deps.json
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\bin\Debug\net8.0-windows\MyShape.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\bin\Debug\net8.0-windows\MyShape.pdb
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.AssemblyInfoInputs.cache
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.AssemblyInfo.cs
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.csproj.CoreCompileInputs.cache
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\refint\MyShape.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\MyShape.pdb
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyShape\obj\Debug\net8.0-windows\ref\MyShape.dll
