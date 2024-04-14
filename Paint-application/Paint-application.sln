@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Paint-application", "Paint-application.csproj", "{B2BBEF7C-4688-4F7A-8F88-A7ABA9511483}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyShape", "..\MyShape\MyShape.csproj", "{647D8825-3710-4494-B13A-92C6BF67E99A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IShape", "..\MyShape\IShape.csproj", "{647D8825-3710-4494-B13A-92C6BF67E99A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLine", "..\MyLine\MyLine.csproj", "{DF14EE27-F3B4-4455-8EF8-ED8D2548352F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{647D8825-3710-4494-B13A-92C6BF67E99A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{647D8825-3710-4494-B13A-92C6BF67E99A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{647D8825-3710-4494-B13A-92C6BF67E99A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF14EE27-F3B4-4455-8EF8-ED8D2548352F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF14EE27-F3B4-4455-8EF8-ED8D2548352F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF14EE27-F3B4-4455-8EF8-ED8D2548352F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF14EE27-F3B4-4455-8EF8-ED8D2548352F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
