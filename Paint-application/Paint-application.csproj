@@ -10,7 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MyEllipse\MyEllipse.csproj" />
     <ProjectReference Include="..\MyLine\MyLine.csproj" />
+    <ProjectReference Include="..\MyRectangle\MyRectangle.csproj" />
     <ProjectReference Include="..\MyShape\IShape.csproj" />
   </ItemGroup>
 

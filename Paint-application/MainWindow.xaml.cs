@@ -66,10 +66,16 @@ namespace Paint_application
                     Content = item.Name,
                     Tag = item,
                 };
-                //control.Click += Control_Click;
+                control.Click += Control_Click;
                 Toolbar.Children.Add(control);
             }
             _painter = _prototypes[0];
+        }
+
+        private void Control_Click(object sender, RoutedEventArgs e)
+        {
+            IShape item = (IShape)(sender as Button)!.Tag;
+            _painter = item;
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -86,7 +92,6 @@ namespace Paint_application
             if (_isDrawing)
             {
                 _end = e.GetPosition(WhiteBoard);
-                
                 _painter.UpdateShape(_start, _end);
             }
         }
