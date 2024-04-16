@@ -52,5 +52,10 @@ namespace MyLine
             shape.X2 = _end.X;
             shape.Y2 = _end.Y;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

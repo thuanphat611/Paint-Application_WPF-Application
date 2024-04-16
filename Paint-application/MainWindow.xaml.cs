@@ -56,7 +56,7 @@ namespace Paint_application
             }
 
             // Tự tạo ra giao diện
-            foreach (var item in _prototypes)
+            /*foreach (var item in _prototypes)
             {
                 var control = new Button()
                 {
@@ -68,7 +68,9 @@ namespace Paint_application
                 };
                 control.Click += Control_Click;
                 Toolbar.Children.Add(control);
-            }
+            }*/
+            ShapeCombobox.ItemsSource = _prototypes;
+            ShapeCombobox.SelectedIndex = 0;
             _painter = _prototypes[0];
         }
 
@@ -99,8 +101,47 @@ namespace Paint_application
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isDrawing = false;
-            _shapeList.Add((IShape)_painter.Clone());
-            MessageBox.Show(_shapeList.Count.ToString());
+            if (_start.X != _end.X && _start.Y != _end.Y)
+            {
+                _shapeList.Add((IShape)_painter.Clone());
+            }
+            //MessageBox.Show(_shapeList.Count.ToString());
+        }
+
+        private void ShapeCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int selectedIndex = ShapeCombobox.SelectedIndex;
+            _painter = _prototypes[selectedIndex];
         }
     }
 }
+
+/*
+ Polygon star = new Polygon();
+            star.Stroke = Brushes.Black;
+            star.StrokeThickness = 2;
+            star.Fill = Brushes.Yellow; // Màu nền của ngôi sao
+
+            // Tạo các điểm của ngôi sao
+            PointCollection points = new PointCollection();
+            double outerRadius = 100;
+            double innerRadius = outerRadius / 2; // Độ lớn của ngôi sao
+
+            // Tính toán các góc cho các đỉnh của ngôi sao
+            double angleOffset = -Math.PI / 2; // Làm cho ngôi sao quay 90 độ
+            for (int i = 0; i < 5; i++)
+            {
+                double angle = angleOffset + 2 * Math.PI * i / 5;
+                double x = outerRadius * Math.Cos(angle) + outerRadius;
+                double y = outerRadius * Math.Sin(angle) + outerRadius;
+                points.Add(new Point(x, y));
+
+                angle += Math.PI / 5;
+                x = innerRadius * Math.Cos(angle) + outerRadius;
+                y = innerRadius * Math.Sin(angle) + outerRadius;
+                points.Add(new Point(x, y));
+            }
+
+            // Thiết lập các điểm của ngôi sao
+            star.Points = points;
+ */

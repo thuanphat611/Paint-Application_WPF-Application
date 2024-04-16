@@ -53,5 +53,10 @@ namespace MyEllipse
             Canvas.SetLeft(shape, _topLeft.X);
             Canvas.SetTop(shape, _topLeft.Y);
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

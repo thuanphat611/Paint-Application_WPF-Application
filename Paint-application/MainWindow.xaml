@@ -29,6 +29,7 @@
                 Orientation="Horizontal" 
                 VerticalAlignment="Center"
                 Margin="10">
+                <ComboBox x:Name="ShapeCombobox" Width="80" SelectionChanged="ShapeCombobox_SelectionChanged"/>
             </StackPanel>
         </Grid>
 
