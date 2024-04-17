@@ -55,29 +55,9 @@ namespace Paint_application
                 }
             }
 
-            // Tự tạo ra giao diện
-            /*foreach (var item in _prototypes)
-            {
-                var control = new Button()
-                {
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Width = 80,
-                    Height = 35,
-                    Content = item.Name,
-                    Tag = item,
-                };
-                control.Click += Control_Click;
-                Toolbar.Children.Add(control);
-            }*/
             ShapeCombobox.ItemsSource = _prototypes;
             ShapeCombobox.SelectedIndex = 0;
             _painter = _prototypes[0];
-        }
-
-        private void Control_Click(object sender, RoutedEventArgs e)
-        {
-            IShape item = (IShape)(sender as Button)!.Tag;
-            _painter = item;
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -85,7 +65,16 @@ namespace Paint_application
             _isDrawing = true;
             _start = e.GetPosition(WhiteBoard);
             _end = e.GetPosition(WhiteBoard);
-            _painter.AddPoints(_start, _end);
+
+            if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
+            {
+                _painter.ShiftPressed = true;
+            }
+            else
+            {
+                _painter.ShiftPressed = false;
+            }
+                _painter.AddPoints(_start, _end);
             WhiteBoard.Children.Add(_painter.Convert(1, Brushes.Red));
         }
 
@@ -93,6 +82,15 @@ namespace Paint_application
         {
             if (_isDrawing)
             {
+                if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
+                {
+                    _painter.ShiftPressed = true;
+                }
+                else
+                {
+                    _painter.ShiftPressed = false;
+                }
+
                 _end = e.GetPosition(WhiteBoard);
                 _painter.UpdateShape(_start, _end);
             }

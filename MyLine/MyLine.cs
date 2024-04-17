@@ -15,6 +15,7 @@ namespace MyLine
         SolidColorBrush brush;
 
         public string Name => "Line";
+        public bool ShiftPressed { get; set; } = false;
 
         public void AddPoints(Point point1, Point point2)
         {
