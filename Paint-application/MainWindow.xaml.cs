@@ -33,11 +33,44 @@ namespace Paint_application
         List<IShape> _prototypes = new List<IShape>();
         List<IShape> _shapeList = new List<IShape>();
         UIElement _lastElement;
+
+        SolidColorBrush _currentColor;
         IShape _painter = null;
+        double _thickness;
+        DoubleCollection _style;
+
+        private void LoadColors()
+        {
+            var colors = typeof(Brushes).GetProperties()
+                                         .Where(prop => prop.PropertyType == typeof(SolidColorBrush))
+                                         .Select(prop => (SolidColorBrush)prop.GetValue(null))
+                                         .ToList();
+
+            ColorCombobox.ItemsSource = colors;
+
+            foreach (SolidColorBrush color in ColorCombobox.Items)
+            {
+                if (color.Color == Colors.Black)
+                {
+                    ColorCombobox.SelectedItem = color;
+                    break;
+                }
+            }
+        }
+
+        private void LoadThickness()
+        {
+            string[] thicknessList = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+            ThicknessCombobox.ItemsSource = thicknessList;
+            ThicknessCombobox.SelectedIndex = 0;
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Single configuration
+            LoadColors();
+            LoadThickness();
+            StyleCombobox.SelectedIndex = 0;
+
             string folder = AppDomain.CurrentDomain.BaseDirectory;
             var fis = new DirectoryInfo(folder).GetFiles("*.dll");
 
@@ -75,7 +108,7 @@ namespace Paint_application
                 _painter.ShiftPressed = false;
             }
                 _painter.AddPoints(_start, _end);
-            WhiteBoard.Children.Add(_painter.Convert(1, Brushes.Red));
+            WhiteBoard.Children.Add(_painter.Convert(_style, _thickness, _currentColor));
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -110,6 +143,41 @@ namespace Paint_application
         {
             int selectedIndex = ShapeCombobox.SelectedIndex;
             _painter = _prototypes[selectedIndex];
+        }
+
+        private void colorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _currentColor = (SolidColorBrush)ColorCombobox.SelectedItem;
+        }
+
+        private void ThicknessCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _thickness = double.Parse(ThicknessCombobox.SelectedItem.ToString());
+        }
+
+        private void StyleCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (StyleCombobox.SelectedIndex == 0)
+            {
+                _style = null;
+            }
+            else if (StyleCombobox.SelectedIndex == 1)
+            {
+                _style = new DoubleCollection() { 5, 2 };
+            }
+            else if (StyleCombobox.SelectedIndex == 2)
+            {
+                _style = new DoubleCollection() { 1, 1 };
+            }
+            else if (StyleCombobox.SelectedIndex == 3)
+            {
+                _style = new DoubleCollection() { 5, 2, 1, 2 };
+            }
+
+            else if (StyleCombobox.SelectedIndex == 4)
+            {
+                _style = new DoubleCollection() { 5, 2, 1, 2, 1, 2 };
+            }
         }
     }
 }

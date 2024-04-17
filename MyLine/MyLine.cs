@@ -13,6 +13,7 @@ namespace MyLine
         Line shape;
         double thickness;
         SolidColorBrush brush;
+        DoubleCollection style;
 
         public string Name => "Line";
         public bool ShiftPressed { get; set; } = false;
@@ -28,9 +29,10 @@ namespace MyLine
             return MemberwiseClone();
         }
 
-        public UIElement Convert(double thickness, SolidColorBrush color)
+        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
         {
             this.thickness = thickness;
+            this.style = style;
             brush = color;
 
             shape = new Line()
@@ -42,6 +44,11 @@ namespace MyLine
                 StrokeThickness = this.thickness,
                 Stroke = brush
             };
+
+            if (this.style != null)
+            {
+                shape.StrokeDashArray = this.style;
+            }
             return shape;
         }
 

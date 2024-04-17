@@ -15,6 +15,7 @@ namespace MyRectangle
         Rectangle shape;
         double thickness;
         SolidColorBrush brush;
+        DoubleCollection style;
 
         public string Name => "Rectangle";
         public bool ShiftPressed { get; set; } = false;
@@ -30,10 +31,11 @@ namespace MyRectangle
             return MemberwiseClone();
         }
 
-        public UIElement Convert(double thickness, SolidColorBrush color)
+        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
         {
             brush = color;
             this.thickness = thickness;
+            this.style = style;
 
             if (ShiftPressed)
             {
@@ -56,6 +58,10 @@ namespace MyRectangle
                 };
             }
 
+            if (this.style != null)
+            {
+                shape.StrokeDashArray = this.style;
+            }
             Canvas.SetLeft(shape, _topLeft.X);
             Canvas.SetTop(shape, _topLeft.Y);
             return shape;

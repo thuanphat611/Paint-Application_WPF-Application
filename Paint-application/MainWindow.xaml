@@ -29,7 +29,26 @@
                 Orientation="Horizontal" 
                 VerticalAlignment="Center"
                 Margin="10">
-                <ComboBox x:Name="ShapeCombobox" Width="80" SelectionChanged="ShapeCombobox_SelectionChanged"/>
+                <ComboBox x:Name="ShapeCombobox" Width="80" VerticalAlignment="Center" SelectionChanged="ShapeCombobox_SelectionChanged"/>
+                <ComboBox Name="ThicknessCombobox" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="ThicknessCombobox_SelectionChanged"/>
+                <ComboBox Name="StyleCombobox" Width="100" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="StyleCombobox_SelectionChanged">
+                    <ComboBoxItem Content="Line"/>
+                    <ComboBoxItem Content="Dash"/>
+                    <ComboBoxItem Content="Dot"/>
+                    <ComboBoxItem Content="Dash dot"/>
+                    <ComboBoxItem Content="Dash dot dot"/>
+                </ComboBox>
+                <ComboBox x:Name="ColorCombobox" Margin="10,0,0,0" HorizontalContentAlignment="Stretch" SelectionChanged="colorListBox_SelectionChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="Black" BorderThickness="1" Margin="2">
+                                <Grid Background="{Binding}">
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
         </Grid>
 
