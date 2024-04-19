@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace Shapes
 {
@@ -7,7 +8,8 @@ namespace Shapes
     {
         bool ShiftPressed { get; set; }
         void AddPoints(Point point1, Point point2);
-        UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color);
+        Shape Convert(DoubleCollection style, double thickness, SolidColorBrush color);
+        Shape ReCreateShape();
         string Name { get; }
         void UpdateShape(Point point1, Point point2);
     }

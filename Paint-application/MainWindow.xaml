@@ -29,7 +29,11 @@
                 Orientation="Horizontal" 
                 VerticalAlignment="Center"
                 Margin="10">
-                <ComboBox x:Name="ShapeCombobox" Width="80" VerticalAlignment="Center" SelectionChanged="ShapeCombobox_SelectionChanged"/>
+                <ComboBox x:Name="CursorType" Width="80" VerticalAlignment="Center" SelectionChanged="CursorType_SelectionChanged">
+                    <ComboBoxItem Content="Draw"/>
+                    <ComboBoxItem Content="Select"/>
+                </ComboBox>
+                <ComboBox x:Name="ShapeCombobox" Width="80" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="ShapeCombobox_SelectionChanged"/>
                 <ComboBox Name="ThicknessCombobox" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="ThicknessCombobox_SelectionChanged"/>
                 <ComboBox Name="StyleCombobox" Width="100" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="StyleCombobox_SelectionChanged">
                     <ComboBoxItem Content="Line"/>

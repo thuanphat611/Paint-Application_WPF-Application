@@ -15,9 +15,11 @@ using System.Windows.Shapes;
 
 namespace Paint_application
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+   public enum CursorMode
+    {
+        Draw, Select
+    }
+
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -38,6 +40,7 @@ namespace Paint_application
         IShape _painter = null;
         double _thickness;
         DoubleCollection _style;
+        CursorMode mode = CursorMode.Draw;
 
         private void LoadColors()
         {
@@ -63,6 +66,18 @@ namespace Paint_application
             string[] thicknessList = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
             ThicknessCombobox.ItemsSource = thicknessList;
             ThicknessCombobox.SelectedIndex = 0;
+        }
+
+        private void PainterClick(object sender, RoutedEventArgs e)
+        {
+            if (mode == CursorMode.Draw)
+                return;
+
+            if (e.Source is FrameworkElement element && element.Tag != null)
+            {
+                int index = Convert.ToInt32(element.Tag);
+                MessageBox.Show(index.ToString());
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -91,10 +106,14 @@ namespace Paint_application
             ShapeCombobox.ItemsSource = _prototypes;
             ShapeCombobox.SelectedIndex = 0;
             _painter = _prototypes[0];
+            CursorType.SelectedIndex = 0;
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (mode == CursorMode.Select)
+                return;
+
             _isDrawing = true;
             _start = e.GetPosition(WhiteBoard);
             _end = e.GetPosition(WhiteBoard);
@@ -108,13 +127,19 @@ namespace Paint_application
                 _painter.ShiftPressed = false;
             }
                 _painter.AddPoints(_start, _end);
-            WhiteBoard.Children.Add(_painter.Convert(_style, _thickness, _currentColor));
+            Shape _newPainter = _painter.Convert(_style, _thickness, _currentColor);
+            _newPainter.Tag = _shapeList.Count;
+            _newPainter.MouseDown += PainterClick;
+            WhiteBoard.Children.Add(_newPainter);
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (_isDrawing)
             {
+                if (mode == CursorMode.Select)
+                    return;
+
                 if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
                 {
                     _painter.ShiftPressed = true;
@@ -131,6 +156,9 @@ namespace Paint_application
 
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            if (mode == CursorMode.Select)
+                return;
+
             _isDrawing = false;
             if (_start.X != _end.X && _start.Y != _end.Y)
             {
@@ -177,6 +205,18 @@ namespace Paint_application
             else if (StyleCombobox.SelectedIndex == 4)
             {
                 _style = new DoubleCollection() { 5, 2, 1, 2, 1, 2 };
+            }
+        }
+
+        private void CursorType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CursorType.SelectedIndex == 0)
+            {
+                mode = CursorMode.Draw;
+            }
+            else
+            {
+                mode = CursorMode.Select;
             }
         }
     }
