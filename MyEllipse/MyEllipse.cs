@@ -30,7 +30,7 @@ namespace MyEllipse
             return MemberwiseClone();
         }
 
-        public Shape Convert(DoubleCollection style, double thickness, SolidColorBrush color)
+        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
         {
             brush = color;
             this.thickness = thickness;
@@ -92,7 +92,7 @@ namespace MyEllipse
             return Name;
         }
 
-        public Shape ReCreateShape()
+        public UIElement GetShape()
         {
             if (shape == null)
                 return shape;

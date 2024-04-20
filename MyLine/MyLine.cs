@@ -29,7 +29,7 @@ namespace MyLine
             return MemberwiseClone();
         }
 
-        public Shape Convert(DoubleCollection style, double thickness, SolidColorBrush color)
+        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
         {
             this.thickness = thickness;
             this.style = style;
@@ -66,11 +66,29 @@ namespace MyLine
             return Name;
         }
 
-        public Shape ReCreateShape()
+        public UIElement GetShape()
         {
             if (shape == null)
                 return shape;
             return null;
+        }
+
+        private double CalculateAngle()
+        {
+            
+            double deltaX = _start.X - _end.X;
+            double deltaY = _start.Y - _end.Y;
+
+            // Tính toán góc gi?a vector này và vector ch? h??ng lên trên
+            double angle = Math.Atan2(deltaY, deltaX) * (180 / Math.PI);
+
+            // Chuy?n ??i góc t? radian sang ?? và ?i?u ch?nh ?? n?m trong kho?ng t? 0 ??n 360 ??
+            if (angle < 0)
+            {
+                angle += 360;
+            }
+
+            return angle;
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Paint_application
 
         private void LoadThickness()
         {
-            string[] thicknessList = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+            string[] thicknessList = ["3", "4", "5", "6", "7", "8", "9", "10"];
             ThicknessCombobox.ItemsSource = thicknessList;
             ThicknessCombobox.SelectedIndex = 0;
         }
@@ -127,10 +127,21 @@ namespace Paint_application
                 _painter.ShiftPressed = false;
             }
                 _painter.AddPoints(_start, _end);
-            Shape _newPainter = _painter.Convert(_style, _thickness, _currentColor);
-            _newPainter.Tag = _shapeList.Count;
-            _newPainter.MouseDown += PainterClick;
-            WhiteBoard.Children.Add(_newPainter);
+
+            if (_painter.Name != "Star")
+            {
+                Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
+                _newPainter.Tag = _shapeList.Count;
+                _newPainter.MouseDown += PainterClick;
+                WhiteBoard.Children.Add(_newPainter);
+            }
+            else
+            {
+                Polygon _newPainter = (Polygon)_painter.Convert(_style, _thickness, _currentColor);
+                _newPainter.Tag = _shapeList.Count;
+                _newPainter.MouseDown += PainterClick;
+                WhiteBoard.Children.Add(_newPainter);
+            }
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -153,18 +164,20 @@ namespace Paint_application
                 _painter.UpdateShape(_start, _end);
             }
         }
-
+        
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (mode == CursorMode.Select)
                 return;
-
-            _isDrawing = false;
-            if (_start.X != _end.X && _start.Y != _end.Y)
+            else
             {
-                _shapeList.Add((IShape)_painter.Clone());
+                if (_start.X != _end.X && _start.Y != _end.Y)
+                {
+                    _shapeList.Add((IShape)_painter.Clone());
+                }
+
+                _isDrawing = false;
             }
-            //MessageBox.Show(_shapeList.Count.ToString());
         }
 
         private void ShapeCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)

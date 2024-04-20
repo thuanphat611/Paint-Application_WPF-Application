@@ -31,7 +31,7 @@ namespace MyRectangle
             return MemberwiseClone();
         }
 
-        public Shape Convert(DoubleCollection style, double thickness, SolidColorBrush color)
+        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
         {
             brush = color;
             this.thickness = thickness;
@@ -91,7 +91,7 @@ namespace MyRectangle
             return Name;
         }
 
-        public Shape ReCreateShape()
+        public UIElement GetShape()
         {
             if (shape == null)
                 return shape;
