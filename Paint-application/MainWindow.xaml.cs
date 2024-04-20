@@ -63,7 +63,7 @@ namespace Paint_application
 
         private void LoadThickness()
         {
-            string[] thicknessList = ["3", "4", "5", "6", "7", "8", "9", "10"];
+            string[] thicknessList = ["5", "6", "7", "8", "9", "10"];
             ThicknessCombobox.ItemsSource = thicknessList;
             ThicknessCombobox.SelectedIndex = 0;
         }
@@ -128,7 +128,7 @@ namespace Paint_application
             }
                 _painter.AddPoints(_start, _end);
 
-            if (_painter.Name != "Star")
+            if (_painter.Name != "Star" && _painter.Name != "Pentagon")
             {
                 Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
                 _newPainter.Tag = _shapeList.Count;

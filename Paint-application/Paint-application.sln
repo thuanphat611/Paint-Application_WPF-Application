@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyRectangle", "..\MyRectang
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyEllipse", "..\MyEllipse\MyEllipse.csproj", "{6C203ACC-DF6D-42C4-AB70-D0C2C43BF8F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStar", "..\MyStar\MyStar.csproj", "{2B7DE3DC-8440-44AC-A7EE-27DAB04CBDAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyStar", "..\MyStar\MyStar.csproj", "{2B7DE3DC-8440-44AC-A7EE-27DAB04CBDAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTriangle", "..\MyTriangle\MyTriangle.csproj", "{DB428595-22E9-4420-9D4C-723D4599E3A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyPentagon", "..\MyPentagon\MyPentagon.csproj", "{B0663189-B827-4F91-B625-B92932EE822F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +47,10 @@ Global
 		{2B7DE3DC-8440-44AC-A7EE-27DAB04CBDAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B7DE3DC-8440-44AC-A7EE-27DAB04CBDAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B7DE3DC-8440-44AC-A7EE-27DAB04CBDAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB428595-22E9-4420-9D4C-723D4599E3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB428595-22E9-4420-9D4C-723D4599E3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB428595-22E9-4420-9D4C-723D4599E3A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB428595-22E9-4420-9D4C-723D4599E3A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0663189-B827-4F91-B625-B92932EE822F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0663189-B827-4F91-B625-B92932EE822F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0663189-B827-4F91-B625-B92932EE822F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0663189-B827-4F91-B625-B92932EE822F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

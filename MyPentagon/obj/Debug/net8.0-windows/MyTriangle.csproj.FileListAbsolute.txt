@@ -1,0 +1,16 @@
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\bin\Debug\net8.0-windows\MyTriangle.deps.json
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\bin\Debug\net8.0-windows\MyTriangle.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\bin\Debug\net8.0-windows\MyTriangle.pdb
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\bin\Debug\net8.0-windows\IShape.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\bin\Debug\net8.0-windows\IShape.pdb
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.csproj.AssemblyReference.cache
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.AssemblyInfoInputs.cache
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.AssemblyInfo.cs
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.csproj.CoreCompileInputs.cache
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.sourcelink.json
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.csproj.Up2Date
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\refint\MyTriangle.dll
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\MyTriangle.pdb
+C:\Users\PHAT\OneDrive - VNU-HCMUS\Năm 3\Lập trình Windows\PA02\MyTriangle\obj\Debug\net8.0-windows\ref\MyTriangle.dll
