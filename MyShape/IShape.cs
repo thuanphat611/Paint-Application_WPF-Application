@@ -12,6 +12,8 @@ namespace Shapes
         UIElement GetShape();
         string Name { get; }
         void UpdateShape(Point point1, Point point2);
+        void AddRotation(double deg);
+        double GetRotationDeg();
     }
 
 }

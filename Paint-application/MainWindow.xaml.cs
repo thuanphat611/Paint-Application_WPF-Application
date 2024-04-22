@@ -41,6 +41,10 @@ namespace Paint_application
         double _thickness;
         DoubleCollection _style;
         CursorMode mode = CursorMode.Draw;
+        IShape _selectedPainter = null;
+
+        Shape _areaSelector;
+        bool _foundShape = false;
 
         private void LoadColors()
         {
@@ -65,18 +69,46 @@ namespace Paint_application
         {
             string[] thicknessList = ["5", "6", "7", "8", "9", "10"];
             ThicknessCombobox.ItemsSource = thicknessList;
-            ThicknessCombobox.SelectedIndex = 0;
+            ThicknessCombobox.SelectedIndex = thicknessList.Length - 1;
         }
 
-        private void PainterClick(object sender, RoutedEventArgs e)
+        private void PainterMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (mode == CursorMode.Draw)
                 return;
 
+            _start = e.GetPosition(WhiteBoard);
+        }
+
+        private void PainterMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (mode == CursorMode.Draw)
+                return;
+
+            _end = e.GetPosition(WhiteBoard);
+
+            if (_start.X != _end.X || _start.Y != _end.Y)
+                return;
+
+            int index = -1;
             if (e.Source is FrameworkElement element && element.Tag != null)
             {
-                int index = Convert.ToInt32(element.Tag);
-                MessageBox.Show(index.ToString());
+                index = Convert.ToInt32(element.Tag);
+                //MessageBox.Show(index.ToString());
+            }
+
+            if (index < _shapeList.Count && index != -1)
+            {
+                _selectedPainter = _shapeList[index];
+                EditToolbar.Visibility = Visibility.Visible;
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                _foundShape = true;
+            }
+            else
+            {
+                _selectedPainter = null;
+                EditToolbar.Visibility = Visibility.Hidden;
+                MessageBox.Show("Index out of bound in PainterMouseUp");
             }
         }
 
@@ -111,45 +143,11 @@ namespace Paint_application
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (mode == CursorMode.Select)
-                return;
-
-            _isDrawing = true;
-            _start = e.GetPosition(WhiteBoard);
-            _end = e.GetPosition(WhiteBoard);
-
-            if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
+            if (mode == CursorMode.Draw)
             {
-                _painter.ShiftPressed = true;
-            }
-            else
-            {
-                _painter.ShiftPressed = false;
-            }
-                _painter.AddPoints(_start, _end);
-
-            if (_painter.Name != "Star" && _painter.Name != "Pentagon")
-            {
-                Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
-                _newPainter.Tag = _shapeList.Count;
-                _newPainter.MouseDown += PainterClick;
-                WhiteBoard.Children.Add(_newPainter);
-            }
-            else
-            {
-                Polygon _newPainter = (Polygon)_painter.Convert(_style, _thickness, _currentColor);
-                _newPainter.Tag = _shapeList.Count;
-                _newPainter.MouseDown += PainterClick;
-                WhiteBoard.Children.Add(_newPainter);
-            }
-        }
-
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_isDrawing)
-            {
-                if (mode == CursorMode.Select)
-                    return;
+                _isDrawing = true;
+                _start = e.GetPosition(WhiteBoard);
+                _end = e.GetPosition(WhiteBoard);
 
                 if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
                 {
@@ -159,17 +157,85 @@ namespace Paint_application
                 {
                     _painter.ShiftPressed = false;
                 }
+                    _painter.AddPoints(_start, _end);
 
+                if (_painter.Name != "Star" && _painter.Name != "Pentagon")
+                {
+                    Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
+                    _newPainter.Tag = _shapeList.Count;
+                    _newPainter.MouseDown += PainterMouseDown;
+                    _newPainter.MouseUp += PainterMouseUp;
+                    WhiteBoard.Children.Add(_newPainter);
+                }
+                else
+                {
+                    Polygon _newPainter = (Polygon)_painter.Convert(_style, _thickness, _currentColor);
+                    _newPainter.Tag = _shapeList.Count;
+                    _newPainter.MouseDown += PainterMouseDown;
+                    _newPainter.MouseUp += PainterMouseUp;
+                    WhiteBoard.Children.Add(_newPainter);
+                }
+            }
+            else if (mode == CursorMode.Select)
+            {
+                _start = e.GetPosition(WhiteBoard);
                 _end = e.GetPosition(WhiteBoard);
-                _painter.UpdateShape(_start, _end);
+
+                _areaSelector = new Rectangle();
+                _areaSelector.Fill = Brushes.LightCyan;
+                _areaSelector.StrokeThickness = 2;
+                _areaSelector.Stroke = Brushes.Cyan;
+                _areaSelector.Opacity = 0.3;
+
+                _areaSelector.Width = Math.Abs(_start.X - _end.X);
+                _areaSelector.Height = Math.Abs(_start.Y - _end.Y);
+
+                Canvas.SetLeft(_areaSelector, _start.X < _end.X ? _start.X : _end.X);
+                Canvas.SetTop(_areaSelector, _start.Y < _end.Y ? _start.Y : _end.Y);
+                WhiteBoard.Children.Add(_areaSelector);
+            }
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mode == CursorMode.Draw)
+            {
+                if (_isDrawing)
+                {
+                    if (mode == CursorMode.Select)
+                        return;
+
+                    if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
+                    {
+                        _painter.ShiftPressed = true;
+                    }
+                    else
+                    {
+                        _painter.ShiftPressed = false;
+                    }
+
+                    _end = e.GetPosition(WhiteBoard);
+                    _painter.UpdateShape(_start, _end);
+                }
+            }
+            else if (mode == CursorMode.Select)
+            {
+                if (_areaSelector != null)
+                {
+                    _end = e.GetPosition(WhiteBoard);
+
+                    _areaSelector.Width = Math.Abs(_start.X - _end.X);
+                    _areaSelector.Height = Math.Abs(_start.Y - _end.Y);
+
+                    Canvas.SetLeft(_areaSelector, _start.X < _end.X ? _start.X : _end.X);
+                    Canvas.SetTop(_areaSelector, _start.Y < _end.Y ? _start.Y : _end.Y);
+                }
             }
         }
         
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (mode == CursorMode.Select)
-                return;
-            else
+            if (mode == CursorMode.Draw)
             {
                 if (_start.X != _end.X && _start.Y != _end.Y)
                 {
@@ -177,6 +243,23 @@ namespace Paint_application
                 }
 
                 _isDrawing = false;
+            }
+            else if (mode == CursorMode.Select)
+            {
+                if (_areaSelector != null)
+                {
+                    WhiteBoard.Children.Remove(_areaSelector);
+                    _areaSelector = null;
+
+                    if (!_foundShape)
+                    {
+                        EditToolbar.Visibility = Visibility.Hidden;
+                    }
+                    else
+                    {
+                        _foundShape = false;
+                    }
+                }
             }
         }
 
@@ -226,41 +309,32 @@ namespace Paint_application
             if (CursorType.SelectedIndex == 0)
             {
                 mode = CursorMode.Draw;
+                EditToolbar.Visibility = Visibility.Hidden;
             }
             else
             {
                 mode = CursorMode.Select;
             }
         }
+
+        private void RotateMinus_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_selectedPainter.GetRotationDeg() > 0)
+            {
+                double currentDeg = _selectedPainter.GetRotationDeg();
+                _selectedPainter.AddRotation(currentDeg - 1);
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+            }
+        }
+
+        private void RotatePlus_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_selectedPainter.GetRotationDeg() < 360)
+            {
+                double currentDeg = _selectedPainter.GetRotationDeg();
+                _selectedPainter.AddRotation(currentDeg + 1);
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString(); 
+            }
+        }
     }
 }
-
-/*
- Polygon star = new Polygon();
-            star.Stroke = Brushes.Black;
-            star.StrokeThickness = 2;
-            star.Fill = Brushes.Yellow; // Màu nền của ngôi sao
-
-            // Tạo các điểm của ngôi sao
-            PointCollection points = new PointCollection();
-            double outerRadius = 100;
-            double innerRadius = outerRadius / 2; // Độ lớn của ngôi sao
-
-            // Tính toán các góc cho các đỉnh của ngôi sao
-            double angleOffset = -Math.PI / 2; // Làm cho ngôi sao quay 90 độ
-            for (int i = 0; i < 5; i++)
-            {
-                double angle = angleOffset + 2 * Math.PI * i / 5;
-                double x = outerRadius * Math.Cos(angle) + outerRadius;
-                double y = outerRadius * Math.Sin(angle) + outerRadius;
-                points.Add(new Point(x, y));
-
-                angle += Math.PI / 5;
-                x = innerRadius * Math.Cos(angle) + outerRadius;
-                y = innerRadius * Math.Sin(angle) + outerRadius;
-                points.Add(new Point(x, y));
-            }
-
-            // Thiết lập các điểm của ngôi sao
-            star.Points = points;
- */

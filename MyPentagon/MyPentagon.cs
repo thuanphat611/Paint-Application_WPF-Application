@@ -15,6 +15,7 @@ namespace MyTriangle
         double thickness;
         SolidColorBrush brush;
         DoubleCollection style;
+        double rotateDeg;
 
         public string Name => "Pentagon";
         public bool ShiftPressed { get; set; } = false;
@@ -87,6 +88,23 @@ namespace MyTriangle
             if (shape == null)
                 return shape;
             return null;
+        }
+
+        public void AddRotation(double deg)
+        {
+            this.rotateDeg = deg;
+            double centerX = shape.Points.Average(p => p.X);
+            double centerY = shape.Points.Average(p => p.Y);
+
+            RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, centerX, centerY);
+            shape.RenderTransform = rotateTransform;
+        }
+
+        public double GetRotationDeg()
+        {
+            if (rotateDeg != null)
+                return rotateDeg;
+            else return 0;
         }
     }
 }

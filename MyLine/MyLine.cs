@@ -14,6 +14,7 @@ namespace MyLine
         double thickness;
         SolidColorBrush brush;
         DoubleCollection style;
+        double rotateDeg;
 
         public string Name => "Line";
         public bool ShiftPressed { get; set; } = false;
@@ -89,6 +90,21 @@ namespace MyLine
             }
 
             return angle;
+        }
+
+        public void AddRotation(double deg)
+        {
+            this.rotateDeg = deg;
+            Point center = new Point((_start.X + _end.X)/2, (_start.Y + _end.Y) / 2);
+            RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, center.X, center.Y);
+            shape.RenderTransform = rotateTransform;
+        }
+
+        public double GetRotationDeg()
+        {
+            if (rotateDeg != null)
+                return rotateDeg;
+            else return 0;
         }
     }
 }

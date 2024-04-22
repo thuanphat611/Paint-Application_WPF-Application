@@ -16,6 +16,7 @@ namespace MyRectangle
         double thickness;
         SolidColorBrush brush;
         DoubleCollection style;
+        double rotateDeg;
 
         public string Name => "Rectangle";
         public bool ShiftPressed { get; set; } = false;
@@ -96,6 +97,20 @@ namespace MyRectangle
             if (shape == null)
                 return shape;
             return null;
+        }
+
+        public void AddRotation(double deg)
+        {
+            this.rotateDeg = deg;
+            RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, shape.Width / 2, shape.Height / 2);
+            shape.RenderTransform = rotateTransform;
+        }
+
+        public double GetRotationDeg()
+        {
+            if (rotateDeg != null)
+                return rotateDeg;
+            else return 0;
         }
     }
 }
