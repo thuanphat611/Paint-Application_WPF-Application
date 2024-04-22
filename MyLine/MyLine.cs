@@ -106,5 +106,10 @@ namespace MyLine
                 return rotateDeg;
             else return 0;
         }
+
+        public Point[] GetPoints()
+        {
+            return [_start, _end];
+        }
     }
 }

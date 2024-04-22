@@ -27,9 +27,15 @@ namespace Paint_application
             InitializeComponent();
         }
 
+        double WHITEBOARD_WIDTH = 1350;
+        double WHITEBOARD_HEIGHT = 620;
+
         bool _isDrawing = false;
+        bool _isDragAndDrop = false;
         Point _start;
         Point _end;
+        Point _selectedStart;
+        Point _selectedEnd;
 
         List<UIElement> _list = new List<UIElement>();
         List<IShape> _prototypes = new List<IShape>();
@@ -45,6 +51,15 @@ namespace Paint_application
 
         Shape _areaSelector;
         bool _foundShape = false;
+
+        bool IsOutOfBoard(Point point)
+        {
+            if (point.X <= 0 || point.X >= WHITEBOARD_WIDTH)
+                return true;
+            if (point.Y <= 0 || point.Y > WHITEBOARD_HEIGHT)
+                return true;
+            return false;
+        }
 
         private void LoadColors()
         {
@@ -77,10 +92,45 @@ namespace Paint_application
             if (mode == CursorMode.Draw)
                 return;
 
+            /*_end = e.GetPosition(WhiteBoard);
+
+            if (_start.X != _end.X || _start.Y != _end.Y)
+                return;*/
+
+            IShape _oldPainter = _selectedPainter;
+
             _start = e.GetPosition(WhiteBoard);
+
+            int index = -1;
+            if (e.Source is FrameworkElement element && element.Tag != null)
+            {
+                index = Convert.ToInt32(element.Tag);
+                //MessageBox.Show(index.ToString());
+            }
+
+            if (index < _shapeList.Count && index != -1)
+            {
+                _selectedPainter = _shapeList[index];
+                _selectedStart = _selectedPainter.GetPoints()[0];
+                _selectedEnd = _selectedPainter.GetPoints()[1];
+                EditToolbar.Visibility = Visibility.Visible;
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                _foundShape = true;
+            }
+            else
+            {
+                _selectedPainter = null;
+                EditToolbar.Visibility = Visibility.Hidden;
+                MessageBox.Show("Index out of bound in PainterMouseUp");
+            }
+
+            if (Object.Equals(_oldPainter, _selectedPainter))
+            {
+                _isDragAndDrop = true;
+            }
         }
 
-        private void PainterMouseUp(object sender, MouseButtonEventArgs e)
+        /*private void PainterMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (mode == CursorMode.Draw)
                 return;
@@ -110,7 +160,7 @@ namespace Paint_application
                 EditToolbar.Visibility = Visibility.Hidden;
                 MessageBox.Show("Index out of bound in PainterMouseUp");
             }
-        }
+        }*/
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -164,7 +214,7 @@ namespace Paint_application
                     Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
                     _newPainter.Tag = _shapeList.Count;
                     _newPainter.MouseDown += PainterMouseDown;
-                    _newPainter.MouseUp += PainterMouseUp;
+                    //_newPainter.MouseUp += PainterMouseUp;
                     WhiteBoard.Children.Add(_newPainter);
                 }
                 else
@@ -172,12 +222,16 @@ namespace Paint_application
                     Polygon _newPainter = (Polygon)_painter.Convert(_style, _thickness, _currentColor);
                     _newPainter.Tag = _shapeList.Count;
                     _newPainter.MouseDown += PainterMouseDown;
-                    _newPainter.MouseUp += PainterMouseUp;
+                    //_newPainter.MouseUp += PainterMouseUp;
                     WhiteBoard.Children.Add(_newPainter);
                 }
             }
             else if (mode == CursorMode.Select)
             {
+                if (_isDragAndDrop)
+                {
+                    return;
+                }
                 _start = e.GetPosition(WhiteBoard);
                 _end = e.GetPosition(WhiteBoard);
 
@@ -202,9 +256,6 @@ namespace Paint_application
             {
                 if (_isDrawing)
                 {
-                    if (mode == CursorMode.Select)
-                        return;
-
                     if ((Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) > 0 || (Keyboard.GetKeyStates(Key.RightShift) & KeyStates.Down) > 0)
                     {
                         _painter.ShiftPressed = true;
@@ -220,15 +271,43 @@ namespace Paint_application
             }
             else if (mode == CursorMode.Select)
             {
-                if (_areaSelector != null)
+                if (_isDragAndDrop)
                 {
                     _end = e.GetPosition(WhiteBoard);
 
-                    _areaSelector.Width = Math.Abs(_start.X - _end.X);
-                    _areaSelector.Height = Math.Abs(_start.Y - _end.Y);
+                    double deltaX = _end.X - _start.X;
+                    double deltaY = _end.Y - _start.Y;
 
-                    Canvas.SetLeft(_areaSelector, _start.X < _end.X ? _start.X : _end.X);
-                    Canvas.SetTop(_areaSelector, _start.Y < _end.Y ? _start.Y : _end.Y);
+                    Point newTopLeft = new Point(_selectedStart.X + deltaX, _selectedStart.Y + deltaY);
+                    Point newRightBottom = new Point(_selectedEnd.X + deltaX, _selectedEnd.Y + deltaY);
+
+                    /*if (IsOutOfBoard(newTopLeft) || IsOutOfBoard(newRightBottom))
+                    {
+                        _isDragAndDrop = false;
+                        _foundShape = false;
+                    }*/
+
+                    _selectedPainter.UpdateShape(newTopLeft, newRightBottom);
+                }
+                else
+                {
+                    if (_areaSelector != null)
+                    {
+                        if (!_foundShape)
+                        {
+                            _end = e.GetPosition(WhiteBoard);
+
+                            _areaSelector.Width = Math.Abs(_start.X - _end.X);
+                            _areaSelector.Height = Math.Abs(_start.Y - _end.Y);
+
+                            Canvas.SetLeft(_areaSelector, _start.X < _end.X ? _start.X : _end.X);
+                            Canvas.SetTop(_areaSelector, _start.Y < _end.Y ? _start.Y : _end.Y);
+                        }
+                        else
+                        {
+                            _end = e.GetPosition(WhiteBoard);
+                        }
+                    }
                 }
             }
         }
@@ -246,18 +325,27 @@ namespace Paint_application
             }
             else if (mode == CursorMode.Select)
             {
-                if (_areaSelector != null)
+                if (_isDragAndDrop)
                 {
-                    WhiteBoard.Children.Remove(_areaSelector);
-                    _areaSelector = null;
+                    _isDragAndDrop = false;
+                    _foundShape = false;
+                }
+                else
+                {
+                    if (_areaSelector != null)
+                    {
+                        WhiteBoard.Children.Remove(_areaSelector);
+                        _areaSelector = null;
 
-                    if (!_foundShape)
-                    {
-                        EditToolbar.Visibility = Visibility.Hidden;
-                    }
-                    else
-                    {
-                        _foundShape = false;
+                        if (!_foundShape)
+                        {
+                            EditToolbar.Visibility = Visibility.Hidden;
+                            _selectedPainter = null;
+                        }
+                        else
+                        {
+                            _foundShape = false;
+                        }
                     }
                 }
             }

@@ -14,6 +14,7 @@ namespace Shapes
         void UpdateShape(Point point1, Point point2);
         void AddRotation(double deg);
         double GetRotationDeg();
+        Point[] GetPoints();
     }
 
 }

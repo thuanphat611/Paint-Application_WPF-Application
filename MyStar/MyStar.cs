@@ -126,5 +126,10 @@ namespace MyStar
                 return rotateDeg;
             else return 0;
         }
+
+        public Point[] GetPoints()
+        {
+            return [_topLeft, _rightBottom];
+        }
     }
 }
