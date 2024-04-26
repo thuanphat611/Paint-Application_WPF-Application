@@ -51,8 +51,34 @@ namespace Paint_application
         IShape _selectedPainter = null;
 
         Shape _areaSelector;
+        Point _areaSelectorPoint1;
+        Point _areaSelectorPoint2;
         bool _foundShape = false;
         Rectangle _resizeSquare;
+        List<IShape> _clipboard = new List<IShape>();
+
+        private bool IsInsideArea(Point _topLeft, Point _rightBottom, Point pointToCheck) {
+            if (pointToCheck.X >= _topLeft.X && pointToCheck.Y >= _topLeft.Y && pointToCheck.X <= _rightBottom.X && pointToCheck.Y <= _rightBottom.Y)
+                return true;
+
+            return false;
+        }
+
+        private void CopyToClipboard()
+        {
+            Point _areaTopLeft = new Point(_areaSelectorPoint1.X < _areaSelectorPoint2.X ? _areaSelectorPoint1.X : _areaSelectorPoint2.X, _areaSelectorPoint1.Y < _areaSelectorPoint2.Y ? _areaSelectorPoint1.Y : _areaSelectorPoint2.Y);
+            Point _areaRightBottom = new Point(_areaSelectorPoint1.X > _areaSelectorPoint2.X ? _areaSelectorPoint1.X : _areaSelectorPoint2.X, _areaSelectorPoint1.Y > _areaSelectorPoint2.Y ? _areaSelectorPoint1.Y : _areaSelectorPoint2.Y);
+
+            _clipboard.Clear();
+            foreach (IShape painter in _shapeList)
+            {
+                Point point1 = painter.GetPoints()[0];
+                Point point2 = painter.GetPoints()[1];
+
+                if (IsInsideArea(_areaTopLeft, _areaRightBottom, point1) && IsInsideArea(_areaTopLeft, _areaRightBottom, point2))
+                    _clipboard.Add((IShape)painter.Clone());
+            }
+        }
 
         bool IsOutOfBoard(Point point)
         {
@@ -131,6 +157,8 @@ namespace Paint_application
                 _resizeSquare = new Rectangle();
                 _resizeSquare.Width = 20;
                 _resizeSquare.Height = 20;
+                _resizeSquare.StrokeThickness = 1;
+                _resizeSquare.Stroke = Brushes.Black;
                 _resizeSquare.Fill = Brushes.Wheat;
                 _resizeSquare.MouseDown += ResizeSquareMouseDown;
                 Canvas.SetLeft(_resizeSquare, _selectedStart.X > _selectedEnd.X ? _selectedStart.X + 10: _selectedEnd.X + 10);
@@ -224,6 +252,7 @@ namespace Paint_application
                 _end = e.GetPosition(WhiteBoard);
 
                 _areaSelector = new Rectangle();
+                _areaSelectorPoint1 = _start;
                 _areaSelector.Fill = Brushes.LightCyan;
                 _areaSelector.StrokeThickness = 2;
                 _areaSelector.Stroke = Brushes.Cyan;
@@ -268,12 +297,6 @@ namespace Paint_application
 
                     Point newTopLeft = new Point(_selectedStart.X + deltaX, _selectedStart.Y + deltaY);
                     Point newRightBottom = new Point(_selectedEnd.X + deltaX, _selectedEnd.Y + deltaY);
-
-                    /*if (IsOutOfBoard(newTopLeft) || IsOutOfBoard(newRightBottom))
-                    {
-                        _isDragAndDrop = false;
-                        _foundShape = false;
-                    }*/
 
                     _selectedPainter.UpdateShape(newTopLeft, newRightBottom);
 
@@ -340,6 +363,9 @@ namespace Paint_application
                 {
                     if (_areaSelector != null)
                     {
+                        _areaSelectorPoint2 = _end;
+                        CopyToClipboard();
+                        //MessageBox.Show(_clipboard.Count().ToString());
                         WhiteBoard.Children.Remove(_areaSelector);
                         _areaSelector = null;
 
