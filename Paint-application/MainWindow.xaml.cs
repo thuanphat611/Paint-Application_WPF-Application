@@ -32,6 +32,7 @@ namespace Paint_application
 
         bool _isDrawing = false;
         bool _isDragAndDrop = false;
+        bool _isResizing = false;
         Point _start;
         Point _end;
         Point _selectedStart;
@@ -51,6 +52,7 @@ namespace Paint_application
 
         Shape _areaSelector;
         bool _foundShape = false;
+        Rectangle _resizeSquare;
 
         bool IsOutOfBoard(Point point)
         {
@@ -87,15 +89,24 @@ namespace Paint_application
             ThicknessCombobox.SelectedIndex = thicknessList.Length - 1;
         }
 
+        private void ResizeSquareMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _isResizing = true;
+            WhiteBoard.Children.Remove(_resizeSquare);
+            _resizeSquare = null;
+        }
+
         private void PainterMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (mode == CursorMode.Draw)
                 return;
 
-            /*_end = e.GetPosition(WhiteBoard);
-
-            if (_start.X != _end.X || _start.Y != _end.Y)
-                return;*/
+            if (_resizeSquare != null)
+            {
+                WhiteBoard.Children.Remove(_resizeSquare);
+                _resizeSquare = null; 
+                _isResizing = false;
+            }
 
             IShape _oldPainter = _selectedPainter;
 
@@ -116,6 +127,15 @@ namespace Paint_application
                 EditToolbar.Visibility = Visibility.Visible;
                 RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
                 _foundShape = true;
+
+                _resizeSquare = new Rectangle();
+                _resizeSquare.Width = 20;
+                _resizeSquare.Height = 20;
+                _resizeSquare.Fill = Brushes.Wheat;
+                _resizeSquare.MouseDown += ResizeSquareMouseDown;
+                Canvas.SetLeft(_resizeSquare, _selectedStart.X > _selectedEnd.X ? _selectedStart.X + 10: _selectedEnd.X + 10);
+                Canvas.SetTop(_resizeSquare, _selectedStart.Y > _selectedEnd.Y ? _selectedStart.Y +10: _selectedEnd.Y + 10);
+                WhiteBoard.Children.Add(_resizeSquare);
             }
             else
             {
@@ -129,38 +149,6 @@ namespace Paint_application
                 _isDragAndDrop = true;
             }
         }
-
-        /*private void PainterMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (mode == CursorMode.Draw)
-                return;
-
-            _end = e.GetPosition(WhiteBoard);
-
-            if (_start.X != _end.X || _start.Y != _end.Y)
-                return;
-
-            int index = -1;
-            if (e.Source is FrameworkElement element && element.Tag != null)
-            {
-                index = Convert.ToInt32(element.Tag);
-                //MessageBox.Show(index.ToString());
-            }
-
-            if (index < _shapeList.Count && index != -1)
-            {
-                _selectedPainter = _shapeList[index];
-                EditToolbar.Visibility = Visibility.Visible;
-                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
-                _foundShape = true;
-            }
-            else
-            {
-                _selectedPainter = null;
-                EditToolbar.Visibility = Visibility.Hidden;
-                MessageBox.Show("Index out of bound in PainterMouseUp");
-            }
-        }*/
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -228,7 +216,7 @@ namespace Paint_application
             }
             else if (mode == CursorMode.Select)
             {
-                if (_isDragAndDrop)
+                if (_isDragAndDrop || _isResizing)
                 {
                     return;
                 }
@@ -289,6 +277,11 @@ namespace Paint_application
 
                     _selectedPainter.UpdateShape(newTopLeft, newRightBottom);
                 }
+                else if (_isResizing)
+                {
+                    _end = e.GetPosition(WhiteBoard);
+                    _selectedPainter.UpdateShape(_selectedStart, _end);
+                }
                 else
                 {
                     if (_areaSelector != null)
@@ -328,6 +321,11 @@ namespace Paint_application
                 if (_isDragAndDrop)
                 {
                     _isDragAndDrop = false;
+                    _foundShape = false;
+                }
+                else if (_isResizing)
+                {
+                    _isResizing = false;
                     _foundShape = false;
                 }
                 else
