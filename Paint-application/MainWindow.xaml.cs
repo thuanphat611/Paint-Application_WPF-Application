@@ -276,11 +276,17 @@ namespace Paint_application
                     }*/
 
                     _selectedPainter.UpdateShape(newTopLeft, newRightBottom);
+
+                    Point newStart = _selectedPainter.GetPoints()[0];
+                    Point newEnd = _selectedPainter.GetPoints()[1];
+                    Canvas.SetLeft(_resizeSquare, newStart.X > newEnd.X ? newStart.X + 10 : newEnd.X + 10);
+                    Canvas.SetTop(_resizeSquare, newStart.Y > newEnd.Y ? newStart.Y + 10 : newEnd.Y + 10);
                 }
                 else if (_isResizing)
                 {
                     _end = e.GetPosition(WhiteBoard);
-                    _selectedPainter.UpdateShape(_selectedStart, _end);
+                    if (_selectedPainter != null)
+                        _selectedPainter.UpdateShape(_selectedStart, _end);
                 }
                 else
                 {
@@ -322,6 +328,8 @@ namespace Paint_application
                 {
                     _isDragAndDrop = false;
                     _foundShape = false;
+                    _selectedStart = _selectedPainter.GetPoints()[0];
+                    _selectedEnd = _selectedPainter.GetPoints()[1];
                 }
                 else if (_isResizing)
                 {
@@ -396,6 +404,12 @@ namespace Paint_application
             {
                 mode = CursorMode.Draw;
                 EditToolbar.Visibility = Visibility.Hidden;
+                _foundShape = false;
+                if (_resizeSquare != null)
+                {
+                    WhiteBoard.Children.Remove(_resizeSquare);
+                    _resizeSquare = null;
+                }
             }
             else
             {
