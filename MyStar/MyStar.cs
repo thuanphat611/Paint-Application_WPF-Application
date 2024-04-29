@@ -79,6 +79,7 @@ namespace MyStar
 
             PointCollection points = new PointCollection();
             double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y)) / 2;
+            double outerSize = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
             double innerRadius = outerRadius / 2;
 
             double angleOffset = -Math.PI / 2;
@@ -102,8 +103,8 @@ namespace MyStar
 
             if (textWrap != null)
             {
-                textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
-                textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+                textWrap.Width = outerSize - thickness * 2 > 0 ? outerSize - thickness * 2 : 50;
+                textWrap.Height = outerSize - thickness * 2 > 0 ? outerSize - thickness * 2 : 50;
                 Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
                 Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
             }
@@ -155,7 +156,7 @@ namespace MyStar
             {
                 textWrap = new Border();
                 textWrap.BorderThickness = new Thickness(0);
-                double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y)) / 2;
+                double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
                 textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
                 textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
 

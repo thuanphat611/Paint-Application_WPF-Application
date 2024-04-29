@@ -82,8 +82,12 @@ namespace MyTriangle
 
             if (textWrap != null)
             {
-                textWrap.Width = shape.ActualWidth - thickness * 2 > 0 ? shape.ActualWidth - thickness * 2 : 50;
-                textWrap.Height = shape.ActualHeight - thickness * 2 > 0 ? shape.ActualHeight - thickness * 2 : 50;
+                textWrap.Width = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
+                textWrap.Height = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
+                double top = center.X - (textWrap.Height / 2) + this.thickness;
+                double left = center.Y - (textWrap.Width / 2) + this.thickness;
+                Canvas.SetLeft(textWrap, top);
+                Canvas.SetTop(textWrap, left);
             }
         }
         public override string ToString()
@@ -130,10 +134,11 @@ namespace MyTriangle
         {
             if (textWrap == null)
             {
+                Vector vector = Point.Subtract(_topLeft, _rightBottom);
                 textWrap = new Border();
                 textWrap.BorderThickness = new Thickness(0);
-                textWrap.Width = shape.ActualWidth - thickness * 2 > 0 ? shape.ActualWidth - thickness * 2 : 50;
-                textWrap.Height = shape.ActualHeight - thickness * 2 > 0 ? shape.ActualHeight - thickness * 2 : 50;
+                textWrap.Width = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
+                textWrap.Height = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
 
                 textBlock = new TextBlock();
                 textBlock.TextWrapping = TextWrapping.Wrap;
@@ -141,6 +146,12 @@ namespace MyTriangle
                 textBlock.VerticalAlignment = VerticalAlignment.Center;
                 textBlock.HorizontalAlignment = HorizontalAlignment.Center;
                 textWrap.Child = textBlock;
+
+                Point center = new Point((_topLeft.X + _rightBottom.X) / 2, (_topLeft.Y + _rightBottom.Y) / 2);
+                double top = center.X - (textWrap.Height / 2) + this.thickness;
+                double left = center.Y - (textWrap.Width / 2) + this.thickness;
+                Canvas.SetLeft(textWrap, top);
+                Canvas.SetTop(textWrap, left);
             }
 
             textBlock.Text = text;
