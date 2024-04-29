@@ -205,6 +205,29 @@ namespace Paint_application
             ShapeCombobox.SelectedIndex = 0;
             _painter = _prototypes[0];
             CursorType.SelectedIndex = 0;
+
+            Border textwrap = new Border();
+            textwrap.Width = 100;
+            textwrap.Height = 100;
+            textwrap.BorderThickness = new Thickness(1);
+            textwrap.BorderBrush = Brushes.Black;
+
+            /*// Create a TextBlock instance
+            TextBlock text = new TextBlock();
+            text.Text = "sakfbasdkjajdbajkfbakjf aaa aaa aaa aaa aaa aaa";
+            text.TextWrapping = TextWrapping.Wrap;
+            text.TextAlignment = TextAlignment.Center;
+            text.VerticalAlignment = VerticalAlignment.Center;
+
+            // Add the TextBlock as a child of the Border
+            textwrap.Child = text;
+
+            // Assuming WhiteBoard is a Canvas
+            Canvas.SetLeft(textwrap, 50); // Adjust these values as needed
+            Canvas.SetTop(textwrap, 50);
+
+            // Add the Border to the Canvas
+            WhiteBoard.Children.Add(textwrap);*/
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
