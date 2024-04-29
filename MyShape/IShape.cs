@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -15,6 +16,8 @@ namespace Shapes
         void AddRotation(double deg);
         double GetRotationDeg();
         Point[] GetPoints();
+        void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text);
+        Border GetText();
     }
 
 }

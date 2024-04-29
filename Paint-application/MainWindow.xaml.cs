@@ -206,13 +206,13 @@ namespace Paint_application
             _painter = _prototypes[0];
             CursorType.SelectedIndex = 0;
 
-            Border textwrap = new Border();
+            /*Border textwrap = new Border();
             textwrap.Width = 100;
             textwrap.Height = 100;
             textwrap.BorderThickness = new Thickness(1);
             textwrap.BorderBrush = Brushes.Black;
 
-            /*// Create a TextBlock instance
+            // Create a TextBlock instance
             TextBlock text = new TextBlock();
             text.Text = "sakfbasdkjajdbajkfbakjf aaa aaa aaa aaa aaa aaa";
             text.TextWrapping = TextWrapping.Wrap;
@@ -453,6 +453,7 @@ namespace Paint_application
             {
                 mode = CursorMode.Draw;
                 EditToolbar.Visibility = Visibility.Hidden;
+                _selectedPainter = null;
                 _foundShape = false;
                 if (_resizeSquare != null)
                 {
@@ -484,6 +485,15 @@ namespace Paint_application
                 _selectedPainter.AddRotation(currentDeg + 1);
                 RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString(); 
             }
+        }
+
+        private void AddTextBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedPainter == null)
+                return;
+
+            AddTextWindow dialog = new AddTextWindow(WhiteBoard, _selectedPainter);
+            dialog.ShowDialog();
         }
     }
 }

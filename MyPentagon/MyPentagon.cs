@@ -16,6 +16,8 @@ namespace MyTriangle
         SolidColorBrush brush;
         DoubleCollection style;
         double rotateDeg;
+        Border textWrap;
+        TextBlock textBlock;
 
         public string Name => "Pentagon";
         public bool ShiftPressed { get; set; } = false;
@@ -77,6 +79,12 @@ namespace MyTriangle
                 double y = center.Y + radius * Math.Sin(angle);
                 shape.Points.Add(new Point(x, y));
             }
+
+            if (textWrap != null)
+            {
+                textWrap.Width = shape.ActualWidth - thickness * 2 > 0 ? shape.ActualWidth - thickness * 2 : 50;
+                textWrap.Height = shape.ActualHeight - thickness * 2 > 0 ? shape.ActualHeight - thickness * 2 : 50;
+            }
         }
         public override string ToString()
         {
@@ -98,6 +106,12 @@ namespace MyTriangle
 
             RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, centerX, centerY);
             shape.RenderTransform = rotateTransform;
+
+            if (textWrap != null)
+            {
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                textWrap.RenderTransform = textRotateTransform;
+            }
         }
 
         public double GetRotationDeg()
@@ -110,6 +124,38 @@ namespace MyTriangle
         public Point[] GetPoints()
         {
             return [_topLeft, _rightBottom];
+        }
+
+        public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            if (textWrap == null)
+            {
+                textWrap = new Border();
+                textWrap.BorderThickness = new Thickness(0);
+                textWrap.Width = shape.ActualWidth - thickness * 2 > 0 ? shape.ActualWidth - thickness * 2 : 50;
+                textWrap.Height = shape.ActualHeight - thickness * 2 > 0 ? shape.ActualHeight - thickness * 2 : 50;
+
+                textBlock = new TextBlock();
+                textBlock.TextWrapping = TextWrapping.Wrap;
+                textBlock.TextAlignment = TextAlignment.Center;
+                textBlock.VerticalAlignment = VerticalAlignment.Center;
+                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                textWrap.Child = textBlock;
+            }
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
+        }
+
+        public Border GetText()
+        {
+            if (textWrap != null)
+                return textWrap;
+            else
+                return null;
         }
     }
 }

@@ -1,6 +1,7 @@
 
 using Shapes;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -15,6 +16,8 @@ namespace MyLine
         SolidColorBrush brush;
         DoubleCollection style;
         double rotateDeg;
+        Border textWrap;
+        TextBlock textBlock;
 
         public string Name => "Line";
         public bool ShiftPressed { get; set; } = false;
@@ -60,6 +63,14 @@ namespace MyLine
             shape.Y1 = _start.Y;
             shape.X2 = _end.X;
             shape.Y2 = _end.Y;
+
+            if (textWrap != null)
+            {
+                textWrap.Width = Math.Abs(_end.X - _start.X) - thickness * 2 > 0 ? Math.Abs(_end.X - _start.X) - thickness * 2 : 50;
+                textWrap.Height = Math.Abs(_end.Y - _start.Y) - thickness * 2 > 0 ? Math.Abs(_end.Y - _start.Y) - thickness * 2 : 50;
+                Canvas.SetLeft(textWrap, _start.X < _end.X ? _start.X + this.thickness : _end.X + this.thickness);
+                Canvas.SetTop(textWrap, _start.Y < _end.Y ? _start.Y + this.thickness : _end.Y + this.thickness);
+            }
         }
 
         public override string ToString()
@@ -98,6 +109,12 @@ namespace MyLine
             Point center = new Point((_start.X + _end.X)/2, (_start.Y + _end.Y) / 2);
             RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, center.X, center.Y);
             shape.RenderTransform = rotateTransform;
+
+            if (textWrap != null)
+            {
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                textWrap.RenderTransform = textRotateTransform;
+            }
         }
 
         public double GetRotationDeg()
@@ -110,6 +127,42 @@ namespace MyLine
         public Point[] GetPoints()
         {
             return [_start, _end];
+        }
+
+        public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            if (textWrap == null)
+            {
+                textWrap = new Border();
+                textWrap.BorderThickness = new Thickness(0);
+                textWrap.Width = Math.Abs(_end.X - _start.X) - thickness * 2 > 0 ? Math.Abs(_end.X - _start.X) - thickness * 2 : 50;
+                textWrap.Height = Math.Abs(_end.Y - _start.Y) - thickness * 2 > 0 ? Math.Abs(_end.Y - _start.Y) - thickness * 2 : 50;
+
+                textBlock = new TextBlock();
+                textBlock.TextWrapping = TextWrapping.Wrap;
+                textBlock.TextAlignment = TextAlignment.Center;
+                textBlock.VerticalAlignment = VerticalAlignment.Center;
+                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                textWrap.Child = textBlock;
+
+
+                Canvas.SetLeft(textWrap, _start.X < _end.X ? _start.X + this.thickness : _end.X + this.thickness);
+                Canvas.SetTop(textWrap, _start.Y < _end.Y ? _start.Y + this.thickness : _end.Y + this.thickness);
+            }
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
+        }
+
+        public Border GetText()
+        {
+            if (textWrap != null)
+                return textWrap;
+            else
+                return null;
         }
     }
 }

@@ -16,6 +16,8 @@ namespace MyStar
         SolidColorBrush brush;
         DoubleCollection style;
         double rotateDeg;
+        Border textWrap;
+        TextBlock textBlock;
 
         public string Name => "Star";
         public bool ShiftPressed { get; set; } = false;
@@ -97,7 +99,16 @@ namespace MyStar
 
             Canvas.SetLeft(shape, _topLeft.X);
             Canvas.SetTop(shape, _topLeft.Y);
+
+            if (textWrap != null)
+            {
+                textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+                textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
+            }
         }
+
         public override string ToString()
         {
             return Name;
@@ -118,6 +129,12 @@ namespace MyStar
 
             RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, centerX, centerY);
             shape.RenderTransform = rotateTransform;
+
+            if (textWrap != null)
+            {
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                textWrap.RenderTransform = textRotateTransform;
+            }
         }
 
         public double GetRotationDeg()
@@ -130,6 +147,42 @@ namespace MyStar
         public Point[] GetPoints()
         {
             return [_topLeft, _rightBottom];
+        }
+
+        public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            if (textWrap == null)
+            {
+                textWrap = new Border();
+                textWrap.BorderThickness = new Thickness(0);
+                double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y)) / 2;
+                textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+                textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+
+                textBlock = new TextBlock();
+                textBlock.TextWrapping = TextWrapping.Wrap;
+                textBlock.TextAlignment = TextAlignment.Center;
+                textBlock.VerticalAlignment = VerticalAlignment.Center;
+                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                textWrap.Child = textBlock;
+
+                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
+            }
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
+        }
+
+        public Border GetText()
+        {
+            if (textWrap != null)
+                return textWrap;
+            else
+                return null;
         }
     }
 }

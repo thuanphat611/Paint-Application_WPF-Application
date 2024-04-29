@@ -65,7 +65,7 @@
                         <TextBox x:Name="RotateTextbox" IsReadOnly="True" FontSize="17" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0"/>
                     </Border>
                     <Button x:Name="RotatePlus" Content="+" FontSize="17" FontWeight="SemiBold" Width="30" Height="30" Background="White" PreviewMouseDown="RotatePlus_PreviewMouseDown"/>
-                    <Button x:Name="AddTextBtn" Content="Add text" FontSize="17" FontWeight="SemiBold" Width="100" Height="30" Margin="10,0,0,0" Background="White"/>
+                    <Button x:Name="AddTextBtn" Content="Add text" FontSize="17" FontWeight="SemiBold" Width="100" Height="30" Margin="10,0,0,0" Background="White" Click="AddTextBtn_Click"/>
                 </StackPanel>
             </Grid>
         </StackPanel>

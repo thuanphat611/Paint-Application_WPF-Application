@@ -23,21 +23,32 @@ namespace Paint_application
         Canvas WhiteBoard;
         IShape painter;
 
-        FontFamily font;
+        String font;
         SolidColorBrush background;
         SolidColorBrush foreground;
         double size;
 
-        public AddTextWindow(/*Canvas Whiteboard, IShape painter*/)
+        public AddTextWindow(Canvas Whiteboard, IShape painter)
         {
-            /*this.WhiteBoard = Whiteboard;
-            this.painter = painter;*/
+            this.WhiteBoard = Whiteboard;
+            this.painter = painter;
             InitializeComponent();
         }
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            if (TextInput.Text.Length > 0)
+            {
+                if (painter.GetText() == null)
+                {
+                    painter.SetText(font, background, foreground, size, TextInput.Text);
+                    WhiteBoard.Children.Add(painter.GetText());
+                }
+                else
+                {
+                    painter.SetText(font, background, foreground, size, TextInput.Text);
+                }
+            }
             this.Close();
         }
 
@@ -77,12 +88,12 @@ namespace Paint_application
 
             string[] thicknessList = ["12", "13", "14", "15", "16", "17", "18", "19", "20"];
             SizeCombobox.ItemsSource = thicknessList;
-            SizeCombobox.SelectedIndex = 0;
+            SizeCombobox.SelectedIndex = 3;
         }
 
         private void FontCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            font = new FontFamily((string) FontCombobox.SelectedItem);
+            font = (string)FontCombobox.SelectedItem;
         }
 
         private void FillCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)

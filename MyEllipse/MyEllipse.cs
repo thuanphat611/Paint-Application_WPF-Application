@@ -16,6 +16,8 @@ namespace MyEllipse
         SolidColorBrush brush;
         DoubleCollection style;
         double rotateDeg;
+        Border textWrap;
+        TextBlock textBlock;
 
         public string Name => "Ellipse";
         public bool ShiftPressed { get; set; } = false;
@@ -86,6 +88,23 @@ namespace MyEllipse
 
             Canvas.SetLeft(shape, _topLeft.X);
             Canvas.SetTop(shape, _topLeft.Y);
+
+            if (textWrap != null)
+            {
+                if (ShiftPressed)
+                {
+                    double wrapSize = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
+                    textWrap.Width = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
+                    textWrap.Height = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
+                }
+                else
+                {
+                    textWrap.Width = Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 > 0 ? Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 : 50;
+                    textWrap.Height = Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 > 0 ? Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 : 50;
+                }
+                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
+            }
         }
 
         public override string ToString()
@@ -105,6 +124,12 @@ namespace MyEllipse
             this.rotateDeg = deg;
             RotateTransform rotateTransform = new RotateTransform(this.rotateDeg, shape.Width / 2, shape.Height / 2);
             shape.RenderTransform = rotateTransform;
+
+            if (textWrap != null)
+            {
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                textWrap.RenderTransform = textRotateTransform;
+            }
         }
 
         public double GetRotationDeg()
@@ -117,6 +142,51 @@ namespace MyEllipse
         public Point[] GetPoints()
         {
             return [_topLeft, _rightBottom];
+        }
+
+        public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            if (textWrap == null)
+            {
+                textWrap = new Border();
+                textWrap.BorderThickness = new Thickness(0);
+
+                if (ShiftPressed)
+                {
+                    double wrapSize = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
+                    textWrap.Width = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
+                    textWrap.Height = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
+                }
+                else
+                {
+                    textWrap.Width = Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 > 0 ? Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 : 50;
+                    textWrap.Height = Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 > 0 ? Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 : 50;
+                }
+
+                textBlock = new TextBlock();
+                textBlock.TextWrapping = TextWrapping.Wrap;
+                textBlock.TextAlignment = TextAlignment.Center;
+                textBlock.VerticalAlignment = VerticalAlignment.Center;
+                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                textWrap.Child = textBlock;
+
+                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
+            }
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
+        }
+
+        public Border GetText()
+        {
+            if (textWrap != null)
+                return textWrap;
+            else
+                return null;
         }
     }
 }
