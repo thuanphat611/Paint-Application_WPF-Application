@@ -10,7 +10,7 @@ namespace Shapes
         bool ShiftPressed { get; set; }
         string Name { get; }
         void AddPoints(Point point1, Point point2);
-        UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color);
+        UIElement Convert(int style, double thickness, SolidColorBrush color);
         UIElement GetShape();
         void UpdateShape(Point point1, Point point2);
         void AddRotation(double deg);
@@ -18,6 +18,7 @@ namespace Shapes
         Point[] GetPoints();
         void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text);
         Border GetText();
+        Object[] GetProperty();
     }
 
 }

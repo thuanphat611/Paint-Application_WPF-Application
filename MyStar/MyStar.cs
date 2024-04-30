@@ -14,10 +14,12 @@ namespace MyStar
         Polygon shape;
         double thickness;
         SolidColorBrush brush;
-        DoubleCollection style;
+        int style;
         double rotateDeg;
         Border textWrap;
         TextBlock textBlock;
+        SolidColorBrush background;
+        SolidColorBrush foreground;
 
         public string Name => "Star";
         public bool ShiftPressed { get; set; } = false;
@@ -33,7 +35,7 @@ namespace MyStar
             return MemberwiseClone();
         }
 
-        public UIElement Convert(DoubleCollection style, double thickness, SolidColorBrush color)
+        public UIElement Convert(int style, double thickness, SolidColorBrush color)
         {
             brush = color;
             this.thickness = thickness;
@@ -64,10 +66,35 @@ namespace MyStar
 
             star.Points = points;
 
-            if (this.style != null)
+            DoubleCollection _style = null;
+
+            if (style == 0)
             {
-                shape.StrokeDashArray = this.style;
+                _style = null;
             }
+            else if (style == 1)
+            {
+                _style = new DoubleCollection() { 5, 2 };
+            }
+            else if (style == 2)
+            {
+                _style = new DoubleCollection() { 1, 1 };
+            }
+            else if (style == 3)
+            {
+                _style = new DoubleCollection() { 5, 2, 1, 2 };
+            }
+
+            else if (style == 4)
+            {
+                _style = new DoubleCollection() { 5, 2, 1, 2, 1, 2 };
+            }
+
+            if (_style != null)
+            {
+                shape.StrokeDashArray = _style;
+            }
+
             Canvas.SetLeft(shape, _topLeft.X);
             Canvas.SetTop(shape, _topLeft.Y);
             return shape;
@@ -152,6 +179,9 @@ namespace MyStar
 
         public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
         {
+            this.background = background;
+            this.foreground = foreground;
+
             if (textWrap == null)
             {
                 textWrap = new Border();
@@ -176,6 +206,12 @@ namespace MyStar
             textBlock.Foreground = foreground;
             textBlock.Background = background;
             textBlock.FontSize = size;
+
+            if (rotateDeg != null)
+            {
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                textWrap.RenderTransform = textRotateTransform;
+            }
         }
 
         public Border GetText()
@@ -184,6 +220,14 @@ namespace MyStar
                 return textWrap;
             else
                 return null;
+        }
+
+        public Object[] GetProperty()
+        {
+            if (textBlock != null)
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, true, textBlock.FontFamily.Source, background, foreground, textBlock.FontSize, textBlock.Text];
+            else
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, false];
         }
     }
 }

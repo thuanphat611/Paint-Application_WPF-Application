@@ -55,6 +55,9 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+
+                <Button x:Name="SaveBtn" Content="Save" Height="30" Width="50" Margin="10,0,0,0" Click="SaveBtn_Click"/>
+                <Button x:Name="LoadBtn" Content="Load" Height="30" Width="50" Margin="10,0,0,0" Click="LoadBtn_Click"/>
             </StackPanel>
             
             <Grid Background="White" Height="50" VerticalAlignment="Center">

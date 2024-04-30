@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace Paint_application
 {
@@ -206,28 +207,6 @@ namespace Paint_application
             _painter = _prototypes[0];
             CursorType.SelectedIndex = 0;
 
-            /*Border textwrap = new Border();
-            textwrap.Width = 100;
-            textwrap.Height = 100;
-            textwrap.BorderThickness = new Thickness(1);
-            textwrap.BorderBrush = Brushes.Black;
-
-            // Create a TextBlock instance
-            TextBlock text = new TextBlock();
-            text.Text = "sakfbasdkjajdbajkfbakjf aaa aaa aaa aaa aaa aaa";
-            text.TextWrapping = TextWrapping.Wrap;
-            text.TextAlignment = TextAlignment.Center;
-            text.VerticalAlignment = VerticalAlignment.Center;
-
-            // Add the TextBlock as a child of the Border
-            textwrap.Child = text;
-
-            // Assuming WhiteBoard is a Canvas
-            Canvas.SetLeft(textwrap, 50); // Adjust these values as needed
-            Canvas.SetTop(textwrap, 50);
-
-            // Add the Border to the Canvas
-            WhiteBoard.Children.Add(textwrap);*/
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -250,18 +229,16 @@ namespace Paint_application
 
                 if (_painter.Name != "Star" && _painter.Name != "Pentagon")
                 {
-                    Shape _newPainter = (Shape) _painter.Convert(_style, _thickness, _currentColor);
+                    Shape _newPainter = (Shape) _painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
                     _newPainter.Tag = _shapeList.Count;
                     _newPainter.MouseDown += PainterMouseDown;
-                    //_newPainter.MouseUp += PainterMouseUp;
                     WhiteBoard.Children.Add(_newPainter);
                 }
                 else
                 {
-                    Polygon _newPainter = (Polygon)_painter.Convert(_style, _thickness, _currentColor);
+                    Polygon _newPainter = (Polygon)_painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
                     _newPainter.Tag = _shapeList.Count;
                     _newPainter.MouseDown += PainterMouseDown;
-                    //_newPainter.MouseUp += PainterMouseUp;
                     WhiteBoard.Children.Add(_newPainter);
                 }
             }
@@ -494,6 +471,171 @@ namespace Paint_application
 
             AddTextWindow dialog = new AddTextWindow(WhiteBoard, _selectedPainter);
             dialog.ShowDialog();
+        }
+
+        private void SaveToFile(string filePath)
+        {
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            using (BinaryWriter writer = new BinaryWriter(fileStream))
+            {
+                writer.Write(_shapeList.Count);
+
+                foreach (IShape painter in _shapeList)
+                {
+                    Object[] properties = painter.GetProperty();
+
+                    writer.Write((string)properties[0]);//Name
+                    writer.Write((bool)properties[1]);//ShiftPressed
+
+                    Point TempPoint = (Point)properties[2];//_topLeft
+                    writer.Write(TempPoint.X);
+                    writer.Write(TempPoint.Y);
+                    TempPoint = (Point)properties[3];//_rightBottom
+                    writer.Write(TempPoint.X);
+                    writer.Write(TempPoint.Y);
+
+                    writer.Write((int)properties[4]);//style
+                    writer.Write((double)properties[5]);//thickness
+
+                    Color color = ((SolidColorBrush) properties[6]).Color;//brush
+                    writer.Write(color.A);
+                    writer.Write(color.R);
+                    writer.Write(color.G);
+                    writer.Write(color.B);
+
+                    writer.Write((double)properties[7]);//rotateDeg
+
+                    bool haveText = (bool)properties[8];//have text or not
+                    writer.Write(haveText);
+                    if (!haveText)
+                        continue;
+
+                    writer.Write((string)properties[9]);//textBlock.FontFamily.Source
+
+                    color = ((SolidColorBrush)properties[10]).Color;//background
+                    writer.Write(color.A);
+                    writer.Write(color.R);
+                    writer.Write(color.G);
+                    writer.Write(color.B);
+
+                    color = ((SolidColorBrush)properties[11]).Color;//foreground
+                    writer.Write(color.A);
+                    writer.Write(color.R);
+                    writer.Write(color.G);
+                    writer.Write(color.B);
+
+                    writer.Write((double)properties[12]);//size
+                    writer.Write((string)properties[13]);//text
+                }
+            }
+        }
+
+        private void LoadFromFile(string filePath)
+        {
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+            using (BinaryReader reader = new BinaryReader(fileStream))
+            {
+                int count = reader.ReadInt32();
+
+                for (int i = 0; i < count; i++)
+                {
+                    string shape = reader.ReadString();//Name
+                    IShape painter = null;
+
+                    foreach (IShape item in _prototypes)
+                    {
+                        if (item.Name == shape)
+                            painter = item;
+                    }
+
+                    if (painter == null)
+                        continue;
+
+                    bool isShiftPressed = reader.ReadBoolean();
+                    painter.ShiftPressed = isShiftPressed;//ShiftPressed
+
+                    Double tempPointX = reader.ReadDouble();//_topLeft
+                    Double tempPointY = reader.ReadDouble();
+                    Point point1 = new Point(tempPointX, tempPointY);
+
+                    tempPointX = reader.ReadDouble();//_rightBottom
+                    tempPointY = reader.ReadDouble();
+                    Point point2 = new Point(tempPointX, tempPointY);
+
+                    painter.AddPoints(point1, point2);
+
+                    int style = reader.ReadInt32();//style
+                    double thickness = reader.ReadDouble();//thickness
+
+                    byte a = reader.ReadByte();//brush
+                    byte r = reader.ReadByte();
+                    byte g = reader.ReadByte();
+                    byte b = reader.ReadByte();
+                    Color color = Color.FromArgb(a, r, g, b);
+                    SolidColorBrush brush = new SolidColorBrush(color);
+
+                    Shape _newPainter = (Shape)painter.Convert(style, thickness, brush);//add to list
+                    _newPainter.Tag = _shapeList.Count;
+                    _newPainter.MouseDown += PainterMouseDown;
+                    WhiteBoard.Children.Add(_newPainter);
+
+                    double rotateDeg = reader.ReadDouble();//rotateDeg
+
+                    bool haveText =  reader.ReadBoolean();//have text or not
+
+                    if (haveText)
+                    {
+                        string font = reader.ReadString();// font
+
+                        a = reader.ReadByte();//background
+                        r = reader.ReadByte();
+                        g = reader.ReadByte();
+                        b = reader.ReadByte();
+                        color = Color.FromArgb(a, r, g, b);
+                        SolidColorBrush background = new SolidColorBrush(color);
+
+                        a = reader.ReadByte();//foreground
+                        r = reader.ReadByte();
+                        g = reader.ReadByte();
+                        b = reader.ReadByte();
+                        color = Color.FromArgb(a, r, g, b);
+                        SolidColorBrush foreground = new SolidColorBrush(color);
+
+                        double textSize = reader.ReadDouble();//size
+                        string text = reader.ReadString();//text
+
+                        painter.SetText(font, background, foreground, textSize, text);
+                        WhiteBoard.Children.Add(painter.GetText());
+                    }
+
+                    painter.AddRotation(rotateDeg);
+                    _shapeList.Add((IShape)painter.Clone());
+                }
+            }
+        }
+
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Binary Files (*.bin)|*.bin";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                SaveToFile(saveFileDialog.FileName);
+            }
+        }
+
+        private void LoadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Binary Files (*.bin)|*.bin";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                _shapeList.Clear();
+                WhiteBoard.Children.Clear();
+                LoadFromFile(openFileDialog.FileName);
+            }
         }
     }
 }
