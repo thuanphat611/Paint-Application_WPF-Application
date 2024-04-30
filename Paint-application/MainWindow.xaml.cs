@@ -580,6 +580,7 @@ namespace Paint_application
                     WhiteBoard.Children.Add(_newPainter);
 
                     double rotateDeg = reader.ReadDouble();//rotateDeg
+                    painter.AddRotation(rotateDeg);
 
                     bool haveText =  reader.ReadBoolean();//have text or not
 
@@ -608,7 +609,6 @@ namespace Paint_application
                         WhiteBoard.Children.Add(painter.GetText());
                     }
 
-                    painter.AddRotation(rotateDeg);
                     _shapeList.Add((IShape)painter.Clone());
                 }
             }
@@ -634,6 +634,8 @@ namespace Paint_application
             {
                 _shapeList.Clear();
                 WhiteBoard.Children.Clear();
+                EditToolbar.Visibility = Visibility.Hidden;
+                _selectedPainter = null;
                 LoadFromFile(openFileDialog.FileName);
             }
         }

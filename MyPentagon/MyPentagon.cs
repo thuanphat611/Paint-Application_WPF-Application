@@ -192,7 +192,7 @@ namespace MyTriangle
 
             if (rotateDeg != null)
             {
-                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.ActualWidth / 2, textWrap.ActualHeight / 2);
+                RotateTransform textRotateTransform = new RotateTransform(this.rotateDeg, textWrap.Width / 2, textWrap.Height / 2);
                 textWrap.RenderTransform = textRotateTransform;
             }
         }
