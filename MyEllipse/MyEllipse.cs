@@ -141,9 +141,10 @@ namespace MyEllipse
 
         public UIElement GetShape()
         {
-            if (shape == null)
-                return shape;
-            return null;
+            Convert(this.style, this.thickness, this.brush);
+            if (this.rotateDeg != null)
+                AddRotation(this.rotateDeg);
+            return shape;
         }
 
         public void AddRotation(double deg)

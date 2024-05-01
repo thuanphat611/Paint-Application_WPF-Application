@@ -236,20 +236,10 @@ namespace Paint_application
                 }
                     _painter.AddPoints(_start, _end);
 
-                if (_painter.Name != "Star" && _painter.Name != "Pentagon")
-                {
-                    Shape _newPainter = (Shape) _painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
-                    _newPainter.Tag = _shapeList.Count;
-                    _newPainter.MouseDown += PainterMouseDown;
-                    WhiteBoard.Children.Add(_newPainter);
-                }
-                else
-                {
-                    Polygon _newPainter = (Polygon)_painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
-                    _newPainter.Tag = _shapeList.Count;
-                    _newPainter.MouseDown += PainterMouseDown;
-                    WhiteBoard.Children.Add(_newPainter);
-                }
+                Shape _newPainter = (Shape)_painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
+                _newPainter.Tag = _shapeList.Count;
+                _newPainter.MouseDown += PainterMouseDown;
+                WhiteBoard.Children.Add(_newPainter);
             }
             else if (mode == CursorMode.Select)
             {
@@ -512,6 +502,7 @@ namespace Paint_application
 
             AddTextWindow dialog = new AddTextWindow(WhiteBoard, _selectedPainter);
             dialog.ShowDialog();
+            AddToHistory();
         }
 
         private void SaveToFile(string filePath)
@@ -685,6 +676,7 @@ namespace Paint_application
                 EditToolbar.Visibility = Visibility.Hidden;
                 _selectedPainter = null;
                 LoadFromFile(openFileDialog.FileName);
+                AddToHistory();
             }
         }
 
@@ -715,17 +707,71 @@ namespace Paint_application
             }
         }
 
+        private void UndoHistory()
+        {
+            if (_historyIndex == 0)
+                return;
+            _historyIndex--;
+
+            _shapeList.Clear();
+            WhiteBoard.Children.Clear();
+            EditToolbar.Visibility = Visibility.Hidden;
+            _selectedPainter = null;
+
+            List<IShape> currentState = _history[_historyIndex];
+            foreach (IShape painter in currentState)
+            {
+                Shape _newPainter = (Shape)painter.GetShape();
+                _newPainter.Tag = _shapeList.Count;
+                _newPainter.MouseDown += PainterMouseDown;
+                WhiteBoard.Children.Add(_newPainter);
+
+                if (painter.GetText() != null)
+                {
+                    WhiteBoard.Children.Add(painter.GetText());
+                }
+                _shapeList.Add((IShape)painter.Clone());
+            }
+        }
+
+        private void RedoHistory()
+        {
+            if (_historyIndex == _history.Count - 1)
+                return;
+            _historyIndex++;
+
+            _shapeList.Clear();
+            WhiteBoard.Children.Clear();
+            EditToolbar.Visibility = Visibility.Hidden;
+            _selectedPainter = null;
+
+            List<IShape> currentState = _history[_historyIndex];
+            foreach (IShape painter in currentState)
+            {
+                Shape _newPainter = (Shape)painter.GetShape();
+                _newPainter.Tag = _shapeList.Count;
+                _newPainter.MouseDown += PainterMouseDown;
+                WhiteBoard.Children.Add(_newPainter);
+
+                if (painter.GetText() != null)
+                {
+                    WhiteBoard.Children.Add(painter.GetText());
+                }
+                _shapeList.Add((IShape)painter.Clone());
+            }
+        }
+
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
             {
                 if (e.Key == Key.Z)
                 {
-                    //MessageBox.Show("Undo");
+                    UndoHistory();
                 }
                 else if (e.Key == Key.Y)
                 {
-                    //MessageBox.Show("Redo");
+                    RedoHistory();
                 }
                 else if (e.Key == Key.C)
                 {

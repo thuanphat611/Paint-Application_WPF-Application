@@ -107,9 +107,10 @@ namespace MyLine
 
         public UIElement GetShape()
         {
-            if (shape == null)
-                return shape;
-            return null;
+            Convert(this.style, this.thickness, this.brush);
+            if (this.rotateDeg != null)
+                AddRotation(this.rotateDeg);
+            return shape;
         }
 
         private double CalculateAngle()
