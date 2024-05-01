@@ -8,7 +8,8 @@
         Title="Paint application" 
         WindowState="Maximized" 
         MinHeight="500" MinWidth="500"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -65,7 +66,7 @@
                     <Label FontSize="17" FontWeight="SemiBold" >Rotate(Deg):</Label>
                     <Button x:Name="RotateMinus" Content="-" FontSize="17" FontWeight="SemiBold" Width="30" Height="30" Background="White" PreviewMouseDown="RotateMinus_PreviewMouseDown"/>
                     <Border BorderThickness="1" BorderBrush="Gray" Width="60" Height="30" Margin="10,0,10,0">
-                        <TextBox x:Name="RotateTextbox" IsReadOnly="True" FontSize="17" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0"/>
+                        <TextBox x:Name="RotateTextbox" FontSize="17" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" KeyDown="RotateTextbox_KeyDown"/>
                     </Border>
                     <Button x:Name="RotatePlus" Content="+" FontSize="17" FontWeight="SemiBold" Width="30" Height="30" Background="White" PreviewMouseDown="RotatePlus_PreviewMouseDown"/>
                     <Button x:Name="AddTextBtn" Content="Add text" FontSize="17" FontWeight="SemiBold" Width="100" Height="30" Margin="10,0,0,0" Background="White" Click="AddTextBtn_Click"/>

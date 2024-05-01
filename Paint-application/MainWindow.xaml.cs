@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using System.Text.RegularExpressions;
 
 namespace Paint_application
 {
@@ -57,6 +58,11 @@ namespace Paint_application
         bool _foundShape = false;
         Rectangle _resizeSquare;
         List<IShape> _clipboard = new List<IShape>();
+
+        List<List<IShape>> _history = new List<List<IShape>>();
+        int _historyIndex;
+
+        //Nho them vao history khi copy, cat,...
 
         private bool IsInsideArea(Point _topLeft, Point _rightBottom, Point pointToCheck) {
             if (pointToCheck.X >= _topLeft.X && pointToCheck.Y >= _topLeft.Y && pointToCheck.X <= _rightBottom.X && pointToCheck.Y <= _rightBottom.Y)
@@ -181,6 +187,9 @@ namespace Paint_application
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            _history.Add(new List<IShape>());
+            _historyIndex = 0;
+
             LoadColors();
             LoadThickness();
             StyleCombobox.SelectedIndex = 0;
@@ -341,6 +350,7 @@ namespace Paint_application
                 if (_start.X != _end.X && _start.Y != _end.Y)
                 {
                     _shapeList.Add((IShape)_painter.Clone());
+                    AddToHistory();
                 }
 
                 _isDrawing = false;
@@ -353,11 +363,13 @@ namespace Paint_application
                     _foundShape = false;
                     _selectedStart = _selectedPainter.GetPoints()[0];
                     _selectedEnd = _selectedPainter.GetPoints()[1];
+                    AddToHistory();
                 }
                 else if (_isResizing)
                 {
                     _isResizing = false;
                     _foundShape = false;
+                    AddToHistory();
                 }
                 else
                 {
@@ -451,6 +463,7 @@ namespace Paint_application
                 double currentDeg = _selectedPainter.GetRotationDeg();
                 _selectedPainter.AddRotation(currentDeg - 1);
                 RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                AddToHistory();
             }
         }
 
@@ -460,7 +473,35 @@ namespace Paint_application
             {
                 double currentDeg = _selectedPainter.GetRotationDeg();
                 _selectedPainter.AddRotation(currentDeg + 1);
-                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString(); 
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                AddToHistory();
+            }
+        }
+
+        private void RotateTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string text = RotateTextbox.Text;
+                string pattern = @"^\d+$";
+
+                if (!Regex.IsMatch(text, pattern))
+                {
+                    RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                    return;
+                }
+
+                double deg = Double.Parse(text);
+
+                if (deg < 0 || deg > 360)
+                {
+                    RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                    return;
+                }
+
+                _selectedPainter.AddRotation(deg);
+                RotateTextbox.Text = _selectedPainter.GetRotationDeg().ToString();
+                AddToHistory();
             }
         }
 
@@ -532,85 +573,92 @@ namespace Paint_application
 
         private void LoadFromFile(string filePath)
         {
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
-            using (BinaryReader reader = new BinaryReader(fileStream))
+            try
             {
-                int count = reader.ReadInt32();
-
-                for (int i = 0; i < count; i++)
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+                using (BinaryReader reader = new BinaryReader(fileStream))
                 {
-                    string shape = reader.ReadString();//Name
-                    IShape painter = null;
+                    int count = reader.ReadInt32();
 
-                    foreach (IShape item in _prototypes)
+                    for (int i = 0; i < count; i++)
                     {
-                        if (item.Name == shape)
-                            painter = item;
+                        string shape = reader.ReadString();//Name
+                        IShape painter = null;
+
+                        foreach (IShape item in _prototypes)
+                        {
+                            if (item.Name == shape)
+                                painter = item;
+                        }
+
+                        if (painter == null)
+                            continue;
+
+                        bool isShiftPressed = reader.ReadBoolean();
+                        painter.ShiftPressed = isShiftPressed;//ShiftPressed
+
+                        Double tempPointX = reader.ReadDouble();//_topLeft
+                        Double tempPointY = reader.ReadDouble();
+                        Point point1 = new Point(tempPointX, tempPointY);
+
+                        tempPointX = reader.ReadDouble();//_rightBottom
+                        tempPointY = reader.ReadDouble();
+                        Point point2 = new Point(tempPointX, tempPointY);
+
+                        painter.AddPoints(point1, point2);
+
+                        int style = reader.ReadInt32();//style
+                        double thickness = reader.ReadDouble();//thickness
+
+                        byte a = reader.ReadByte();//brush
+                        byte r = reader.ReadByte();
+                        byte g = reader.ReadByte();
+                        byte b = reader.ReadByte();
+                        Color color = Color.FromArgb(a, r, g, b);
+                        SolidColorBrush brush = new SolidColorBrush(color);
+
+                        Shape _newPainter = (Shape)painter.Convert(style, thickness, brush);//add to list
+                        _newPainter.Tag = _shapeList.Count;
+                        _newPainter.MouseDown += PainterMouseDown;
+                        WhiteBoard.Children.Add(_newPainter);
+
+                        double rotateDeg = reader.ReadDouble();//rotateDeg
+                        painter.AddRotation(rotateDeg);
+
+                        bool haveText =  reader.ReadBoolean();//have text or not
+
+                        if (haveText)
+                        {
+                            string font = reader.ReadString();// font
+
+                            a = reader.ReadByte();//background
+                            r = reader.ReadByte();
+                            g = reader.ReadByte();
+                            b = reader.ReadByte();
+                            color = Color.FromArgb(a, r, g, b);
+                            SolidColorBrush background = new SolidColorBrush(color);
+
+                            a = reader.ReadByte();//foreground
+                            r = reader.ReadByte();
+                            g = reader.ReadByte();
+                            b = reader.ReadByte();
+                            color = Color.FromArgb(a, r, g, b);
+                            SolidColorBrush foreground = new SolidColorBrush(color);
+
+                            double textSize = reader.ReadDouble();//size
+                            string text = reader.ReadString();//text
+
+                            painter.SetText(font, background, foreground, textSize, text);
+                            WhiteBoard.Children.Add(painter.GetText());
+                        }
+
+                        _shapeList.Add((IShape)painter.Clone());
                     }
-
-                    if (painter == null)
-                        continue;
-
-                    bool isShiftPressed = reader.ReadBoolean();
-                    painter.ShiftPressed = isShiftPressed;//ShiftPressed
-
-                    Double tempPointX = reader.ReadDouble();//_topLeft
-                    Double tempPointY = reader.ReadDouble();
-                    Point point1 = new Point(tempPointX, tempPointY);
-
-                    tempPointX = reader.ReadDouble();//_rightBottom
-                    tempPointY = reader.ReadDouble();
-                    Point point2 = new Point(tempPointX, tempPointY);
-
-                    painter.AddPoints(point1, point2);
-
-                    int style = reader.ReadInt32();//style
-                    double thickness = reader.ReadDouble();//thickness
-
-                    byte a = reader.ReadByte();//brush
-                    byte r = reader.ReadByte();
-                    byte g = reader.ReadByte();
-                    byte b = reader.ReadByte();
-                    Color color = Color.FromArgb(a, r, g, b);
-                    SolidColorBrush brush = new SolidColorBrush(color);
-
-                    Shape _newPainter = (Shape)painter.Convert(style, thickness, brush);//add to list
-                    _newPainter.Tag = _shapeList.Count;
-                    _newPainter.MouseDown += PainterMouseDown;
-                    WhiteBoard.Children.Add(_newPainter);
-
-                    double rotateDeg = reader.ReadDouble();//rotateDeg
-                    painter.AddRotation(rotateDeg);
-
-                    bool haveText =  reader.ReadBoolean();//have text or not
-
-                    if (haveText)
-                    {
-                        string font = reader.ReadString();// font
-
-                        a = reader.ReadByte();//background
-                        r = reader.ReadByte();
-                        g = reader.ReadByte();
-                        b = reader.ReadByte();
-                        color = Color.FromArgb(a, r, g, b);
-                        SolidColorBrush background = new SolidColorBrush(color);
-
-                        a = reader.ReadByte();//foreground
-                        r = reader.ReadByte();
-                        g = reader.ReadByte();
-                        b = reader.ReadByte();
-                        color = Color.FromArgb(a, r, g, b);
-                        SolidColorBrush foreground = new SolidColorBrush(color);
-
-                        double textSize = reader.ReadDouble();//size
-                        string text = reader.ReadString();//text
-
-                        painter.SetText(font, background, foreground, textSize, text);
-                        WhiteBoard.Children.Add(painter.GetText());
-                    }
-
-                    _shapeList.Add((IShape)painter.Clone());
                 }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Error loading file \n Please make sure that the file is valid");
             }
         }
 
@@ -639,5 +687,60 @@ namespace Paint_application
                 LoadFromFile(openFileDialog.FileName);
             }
         }
+
+        private void AddToHistory()
+        {
+            if (_historyIndex == _history.Count - 1)
+            {
+                List<IShape> historyItem = new List<IShape>();
+
+                foreach (IShape shape in _shapeList)
+                {
+                    historyItem.Add((IShape)shape.Clone());
+                }
+                _history.Add(historyItem);
+                _historyIndex = _history.Count - 1;
+            }
+            else
+            {
+                _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
+                List<IShape> historyItem = new List<IShape>();
+
+                foreach (IShape shape in _shapeList)
+                {
+                    historyItem.Add((IShape)shape.Clone());
+                }
+                _history.Add(historyItem);
+                _historyIndex = _history.Count - 1;
+            }
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Key == Key.Z)
+                {
+                    //MessageBox.Show("Undo");
+                }
+                else if (e.Key == Key.Y)
+                {
+                    //MessageBox.Show("Redo");
+                }
+                else if (e.Key == Key.C)
+                {
+                    MessageBox.Show("Copy");
+                }
+                else if (e.Key == Key.X)
+                {
+                    MessageBox.Show("Cut");
+                }
+                else if (e.Key == Key.V)
+                {
+                    MessageBox.Show("Paste");
+                }
+            }
+        }
+
     }
 }
