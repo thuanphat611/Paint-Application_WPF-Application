@@ -145,6 +145,8 @@ namespace MyStar
         public UIElement GetShape()
         {
             Convert(this.style, this.thickness, this.brush);
+            UpdateShape(this._topLeft, this._rightBottom);
+
             if (this.rotateDeg != null)
                 AddRotation(this.rotateDeg);
             return shape;

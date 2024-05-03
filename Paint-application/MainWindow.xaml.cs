@@ -17,9 +17,14 @@ using System.Text.RegularExpressions;
 
 namespace Paint_application
 {
-   public enum CursorMode
+    public enum CursorMode
     {
         Draw, Select
+    }
+
+    public enum PastingMode
+    {
+        None, Copy, Cut
     }
 
     public partial class MainWindow : Window
@@ -58,9 +63,12 @@ namespace Paint_application
         bool _foundShape = false;
         Rectangle _resizeSquare;
         List<IShape> _clipboard = new List<IShape>();
+        List<int> _clipBoardIndex = new List<int>();    
+        List<IShape> _pastingClipboard = new List<IShape>();
 
         List<List<IShape>> _history = new List<List<IShape>>();
         int _historyIndex;
+        PastingMode _pastingMode = PastingMode.None;
 
         //Nho them vao history khi copy, cat,...
 
@@ -77,13 +85,22 @@ namespace Paint_application
             Point _areaRightBottom = new Point(_areaSelectorPoint1.X > _areaSelectorPoint2.X ? _areaSelectorPoint1.X : _areaSelectorPoint2.X, _areaSelectorPoint1.Y > _areaSelectorPoint2.Y ? _areaSelectorPoint1.Y : _areaSelectorPoint2.Y);
 
             _clipboard.Clear();
-            foreach (IShape painter in _shapeList)
+            _clipBoardIndex.Clear();
+            for (int i = 0; i < _shapeList.Count; i++)
             {
-                Point point1 = painter.GetPoints()[0];
-                Point point2 = painter.GetPoints()[1];
+                Point point1 = _shapeList[i].GetPoints()[0];
+                Point point2 = _shapeList[i].GetPoints()[1];
 
                 if (IsInsideArea(_areaTopLeft, _areaRightBottom, point1) && IsInsideArea(_areaTopLeft, _areaRightBottom, point2))
-                    _clipboard.Add((IShape)painter.Clone());
+                {
+                    _clipboard.Add((IShape)_shapeList[i].Clone());
+                    _clipBoardIndex.Add(i);
+                }
+            }
+
+            if (_clipBoardIndex.Count > 0)
+            {
+                _clipBoardIndex.Sort((a, b) => b.CompareTo(a));
             }
         }
 
@@ -761,6 +778,108 @@ namespace Paint_application
             }
         }
 
+        private void Copy()
+        {
+            if (_clipboard.Count == 0)
+                return;
+
+            _pastingClipboard.Clear();
+            foreach (IShape painter in _clipboard)
+            {
+                _pastingClipboard.Add(painter);
+            }
+            _pastingMode = PastingMode.Copy;
+        }
+
+        private void Cut()
+        {
+            if (_clipboard.Count == 0)
+                return;
+
+            _pastingClipboard.Clear();
+            foreach (IShape painter in _clipboard)
+            {
+                _pastingClipboard.Add(painter);
+            }
+            _pastingMode = PastingMode.Cut;
+
+            foreach (int index in _clipBoardIndex)
+            {
+                _shapeList.RemoveAt(index);
+            }
+
+            WhiteBoard.Children.Clear();
+            EditToolbar.Visibility = Visibility.Hidden;
+            _selectedPainter = null;
+
+            for (int i = 0; i < _shapeList.Count; i++)
+            {
+                Shape _newPainter = (Shape)_shapeList[i].GetShape();
+                _newPainter.Tag = i;
+                _newPainter.MouseDown += PainterMouseDown;
+                WhiteBoard.Children.Add(_newPainter);
+
+                if (_shapeList[i].GetText() != null)
+                {
+                    WhiteBoard.Children.Add(_shapeList[i].GetText());
+                }
+            }
+        }
+
+        private void Paste()
+        {
+            if (_pastingMode == PastingMode.Copy)
+            {
+                if (_pastingClipboard.Count > 0)
+                {
+                    foreach (IShape painter in _pastingClipboard)
+                    {
+                        Point point1 = new Point(painter.GetPoints()[0].X + 30, painter.GetPoints()[0].Y + 30);
+                        Point point2 = new Point(painter.GetPoints()[1].X + 30, painter.GetPoints()[1].Y + 30);
+
+                        painter.AddPoints(point1, point2);
+                        Shape _newPainter = (Shape)painter.GetShape();
+                        _newPainter.Tag = _shapeList.Count;
+                        _newPainter.MouseDown += PainterMouseDown;
+                        WhiteBoard.Children.Add(_newPainter);
+
+                        if (painter.GetText() != null)
+                        {
+                            WhiteBoard.Children.Add(painter.GetText());
+                        }
+                        _shapeList.Add((IShape)painter.Clone());
+                    }
+                }
+                    
+                _pastingMode = PastingMode.None;
+                _clipboard.Clear();
+                AddToHistory();
+            }
+            else if (_pastingMode == PastingMode.Cut)
+            {
+                if (_pastingClipboard.Count > 0)
+                {
+                    foreach (IShape painter in _pastingClipboard)
+                    {
+                        Shape _newPainter = (Shape)painter.GetShape();
+                        _newPainter.Tag = _shapeList.Count;
+                        _newPainter.MouseDown += PainterMouseDown;
+                        WhiteBoard.Children.Add(_newPainter);
+
+                        if (painter.GetText() != null)
+                        {
+                            WhiteBoard.Children.Add(painter.GetText());
+                        }
+                        _shapeList.Add((IShape)painter.Clone());
+                    }
+                }
+
+                _pastingMode = PastingMode.None;
+                _clipboard.Clear();
+                AddToHistory();
+            }
+        }
+
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -775,15 +894,15 @@ namespace Paint_application
                 }
                 else if (e.Key == Key.C)
                 {
-                    MessageBox.Show("Copy");
+                    Copy();
                 }
                 else if (e.Key == Key.X)
                 {
-                    MessageBox.Show("Cut");
+                    Cut();
                 }
                 else if (e.Key == Key.V)
                 {
-                    MessageBox.Show("Paste");
+                    Paste();
                 }
             }
         }
