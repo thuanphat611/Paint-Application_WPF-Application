@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace Paint_application
 {
@@ -32,6 +33,12 @@ namespace Paint_application
         public MainWindow()
         {
             InitializeComponent();
+
+            ObservableCollection<string> list = new ObservableCollection<string>();
+            list.Add("Layer 1");
+            list.Add("Layer 2");
+            list.Add("Layer 3");
+            LayerList.ItemsSource = list;
         }
 
         double WHITEBOARD_WIDTH = 1350;

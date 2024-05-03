@@ -8,6 +8,7 @@ namespace Shapes
     public interface IShape : ICloneable
     {
         bool ShiftPressed { get; set; }
+        string Layer { get; set; }
         string Name { get; }
         void AddPoints(Point point1, Point point2);
         UIElement Convert(int style, double thickness, SolidColorBrush color);

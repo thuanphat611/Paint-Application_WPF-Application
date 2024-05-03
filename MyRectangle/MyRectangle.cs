@@ -25,6 +25,7 @@ namespace MyRectangle
 
         public string Name => "Rectangle";
         public bool ShiftPressed { get; set; } = false;
+        string IShape.Layer { get; set; } = "";
 
         public void AddPoints(Point point1, Point point2)
         {
