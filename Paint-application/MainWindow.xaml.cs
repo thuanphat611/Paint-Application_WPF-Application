@@ -825,7 +825,7 @@ namespace Paint_application
             _layerState = _layerStateHistory[_historyIndex];
             LayerList.ItemsSource = _layerList;
             CurrentLayerCombobox.ItemsSource = _layerList;
-            CurrentLayerCombobox.SelectedIndex = workingIndex;
+            CurrentLayerCombobox.SelectedIndex = workingIndex < _layerList.Count - 1? workingIndex : _layerList.Count - 1;
         }
 
         private void RedoHistory()
@@ -855,11 +855,12 @@ namespace Paint_application
             }
 
             int workingIndex = CurrentLayerCombobox.SelectedIndex;
-            //_layerList = _layerHistory[_historyIndex];
-            //_layerState = _layerStateHistory[_historyIndex];
+            _layerList = _layerHistory[_historyIndex];
+            _layerState = _layerStateHistory[_historyIndex];
             LayerList.ItemsSource = _layerList;
             CurrentLayerCombobox.ItemsSource = _layerList;
-            CurrentLayerCombobox.SelectedIndex = workingIndex;
+            CurrentLayerCombobox.SelectedIndex = workingIndex < _layerList.Count - 1 ? workingIndex : _layerList.Count - 1;
+
         }
 
         private void Copy()
@@ -1006,6 +1007,11 @@ namespace Paint_application
 
         private void LockBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (LayerList.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
             int selected = LayerList.SelectedIndex;
             
             if (selected >= _layerState.Count)
@@ -1017,22 +1023,50 @@ namespace Paint_application
 
         private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            AddLayerWindow dialog = new AddLayerWindow(this._layerList, this._layerState, -1);
+            dialog.ShowDialog();
         }
 
         private void RenameLayerBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (LayerList.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
             int workingIndex = CurrentLayerCombobox.SelectedIndex;
             int selected = LayerList.SelectedIndex;
-            //show dialog
-            //AddToHistory();
+            string oldLayerName = _layerList[selected];
+
+            AddLayerWindow dialog = new AddLayerWindow(this._layerList, this._layerState, selected);
+            dialog.ShowDialog();
+
+            string newLayerName = _layerList[selected];
+            foreach (IShape painter in _shapeList)
+            {
+                if (painter.Layer == oldLayerName)
+                {
+                    painter.Layer = newLayerName;
+                }
+            }
             CurrentLayerCombobox.SelectedIndex = workingIndex;
         }
 
         private void RemoveLayerBtn_Click(object sender, RoutedEventArgs e)
         {
-            int idexToRemove = LayerList.SelectedIndex;
-            string layerToRemove = _layerList[idexToRemove];
+            if (LayerList.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
+            if (_layerList.Count == 1)
+            {
+                MessageBox.Show("Must have at least one layer!");
+                return;
+            }
+
+            int indexToRemove = LayerList.SelectedIndex;
+            string layerToRemove = _layerList[indexToRemove];
             List<int> indexesToRemove = new List<int>();
 
             for  (int i = 0; i < _shapeList.Count; i++)
@@ -1070,6 +1104,10 @@ namespace Paint_application
                 }
             }
 
+            int workingIndex = CurrentLayerCombobox.SelectedIndex;
+            _layerList.RemoveAt(indexToRemove);
+            _layerState.RemoveAt(indexToRemove);
+            CurrentLayerCombobox.SelectedIndex = workingIndex != indexToRemove ? workingIndex : 0;
             AddToHistory();
         }
     }
