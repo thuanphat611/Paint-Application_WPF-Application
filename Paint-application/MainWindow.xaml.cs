@@ -34,15 +34,10 @@ namespace Paint_application
         {
             InitializeComponent();
 
-            ObservableCollection<string> list = new ObservableCollection<string>();
-            list.Add("Layer 1");
-            list.Add("Layer 2");
-            list.Add("Layer 3");
-            LayerList.ItemsSource = list;
         }
 
-        double WHITEBOARD_WIDTH = 1350;
-        double WHITEBOARD_HEIGHT = 620;
+        double WHITEBOARD_WIDTH = 1150;
+        double WHITEBOARD_HEIGHT = 550;
 
         bool _isDrawing = false;
         bool _isDragAndDrop = false;
@@ -74,10 +69,13 @@ namespace Paint_application
         List<IShape> _pastingClipboard = new List<IShape>();
 
         List<List<IShape>> _history = new List<List<IShape>>();
+        List<ObservableCollection<string>> _layerHistory = new List<ObservableCollection<string>>();
+        List<ObservableCollection<bool>> _layerStateHistory = new List<ObservableCollection<bool>>();
         int _historyIndex;
         PastingMode _pastingMode = PastingMode.None;
-
-        //Nho them vao history khi copy, cat,...
+        ObservableCollection<string> _layerList = new ObservableCollection<string>();
+        ObservableCollection<bool> _layerState = new ObservableCollection<bool>();
+        string _currentLayer;
 
         private bool IsInsideArea(Point _topLeft, Point _rightBottom, Point pointToCheck) {
             if (pointToCheck.X >= _topLeft.X && pointToCheck.Y >= _topLeft.Y && pointToCheck.X <= _rightBottom.X && pointToCheck.Y <= _rightBottom.Y)
@@ -100,8 +98,12 @@ namespace Paint_application
 
                 if (IsInsideArea(_areaTopLeft, _areaRightBottom, point1) && IsInsideArea(_areaTopLeft, _areaRightBottom, point2))
                 {
-                    _clipboard.Add((IShape)_shapeList[i].Clone());
-                    _clipBoardIndex.Add(i);
+                    int layerIndex = GetLayerIndex(_shapeList[i].Layer);
+                    if (layerIndex != -1 && _layerState[layerIndex])
+                    {
+                        _clipboard.Add((IShape)_shapeList[i].Clone());
+                        _clipBoardIndex.Add(i);
+                    }
                 }
             }
 
@@ -178,6 +180,12 @@ namespace Paint_application
 
             if (index < _shapeList.Count && index != -1)
             {
+                int layerIndex = GetLayerIndex(_shapeList[index].Layer);
+                if (layerIndex == -1 || !_layerState[layerIndex])
+                {
+                    return;
+                }
+
                 _selectedPainter = _shapeList[index];
                 _selectedStart = _selectedPainter.GetPoints()[0];
                 _selectedEnd = _selectedPainter.GetPoints()[1];
@@ -211,7 +219,23 @@ namespace Paint_application
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            LayerList.ItemsSource = _layerList;
+            CurrentLayerCombobox.ItemsSource = _layerList;
+
+            _layerList.Add("Layer 1");
+            _layerState.Add(true);
+            CurrentLayerCombobox.SelectedIndex = 0;
+
             _history.Add(new List<IShape>());
+
+            ObservableCollection<string> layerHistoryItem = new ObservableCollection<string>();
+            layerHistoryItem.Add(_layerList[0]);
+            _layerHistory.Add(layerHistoryItem);
+
+            ObservableCollection<bool> layerStateHistoryItem = new ObservableCollection<bool>();
+            layerStateHistoryItem.Add(_layerState[0]);
+            _layerStateHistory.Add(layerStateHistoryItem);
+
             _historyIndex = 0;
 
             LoadColors();
@@ -260,6 +284,7 @@ namespace Paint_application
                 }
                     _painter.AddPoints(_start, _end);
 
+                _painter.Layer = _currentLayer;
                 Shape _newPainter = (Shape)_painter.Convert(StyleCombobox.SelectedIndex, _thickness, _currentColor);
                 _newPainter.Tag = _shapeList.Count;
                 _newPainter.MouseDown += PainterMouseDown;
@@ -391,7 +416,6 @@ namespace Paint_application
                     {
                         _areaSelectorPoint2 = _end;
                         CopyToClipboard();
-                        //MessageBox.Show(_clipboard.Count().ToString());
                         WhiteBoard.Children.Remove(_areaSelector);
                         _areaSelector = null;
 
@@ -468,6 +492,11 @@ namespace Paint_application
             {
                 mode = CursorMode.Select;
             }
+        }
+
+        private void CurrentLayerCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _currentLayer = (string)CurrentLayerCombobox.SelectedItem;
         }
 
         private void RotateMinus_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -666,7 +695,7 @@ namespace Paint_application
                             painter.SetText(font, background, foreground, textSize, text);
                             WhiteBoard.Children.Add(painter.GetText());
                         }
-
+                        //DUNG QUEN _LAYERLIST VA LAYERSTATE--------------------------------------------------------------------------------------
                         _shapeList.Add((IShape)painter.Clone());
                     }
                 }
@@ -697,6 +726,8 @@ namespace Paint_application
             {
                 _shapeList.Clear();
                 WhiteBoard.Children.Clear();
+                _layerList.Clear();
+                _layerState.Clear();
                 EditToolbar.Visibility = Visibility.Hidden;
                 _selectedPainter = null;
                 LoadFromFile(openFileDialog.FileName);
@@ -709,24 +740,56 @@ namespace Paint_application
             if (_historyIndex == _history.Count - 1)
             {
                 List<IShape> historyItem = new List<IShape>();
+                ObservableCollection<string> layerHistoryItem = new ObservableCollection<string>();
+                ObservableCollection<bool> layerStateHistoryItem = new ObservableCollection<bool>();
 
                 foreach (IShape shape in _shapeList)
                 {
                     historyItem.Add((IShape)shape.Clone());
                 }
                 _history.Add(historyItem);
+
+                foreach (string layer in _layerList)
+                {
+                    layerHistoryItem.Add(layer);
+                }
+                _layerHistory.Add(layerHistoryItem);
+                //MessageBox.Show(_layerHistory.Count.ToString());
+
+                foreach (bool state in _layerState)
+                {
+                    layerStateHistoryItem.Add(state);
+                }
+                _layerStateHistory.Add(layerStateHistoryItem);
+
                 _historyIndex = _history.Count - 1;
             }
             else
             {
                 _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
                 List<IShape> historyItem = new List<IShape>();
+                ObservableCollection<string> layerHistoryItem = new ObservableCollection<string>();
+                ObservableCollection<bool> layerStateHistoryItem = new ObservableCollection<bool>();
 
                 foreach (IShape shape in _shapeList)
                 {
                     historyItem.Add((IShape)shape.Clone());
                 }
                 _history.Add(historyItem);
+
+                foreach (string layer in _layerList)
+                {
+                    layerHistoryItem.Add(layer);
+                }
+                _layerHistory.Add(layerHistoryItem);
+                //MessageBox.Show(_layerHistory.Count.ToString());
+
+                foreach (bool state in _layerState)
+                {
+                    layerStateHistoryItem.Add(state);
+                }
+                _layerStateHistory.Add(layerStateHistoryItem);
+
                 _historyIndex = _history.Count - 1;
             }
         }
@@ -756,6 +819,13 @@ namespace Paint_application
                 }
                 _shapeList.Add((IShape)painter.Clone());
             }
+
+            int workingIndex = CurrentLayerCombobox.SelectedIndex;
+            _layerList = _layerHistory[_historyIndex];
+            _layerState = _layerStateHistory[_historyIndex];
+            LayerList.ItemsSource = _layerList;
+            CurrentLayerCombobox.ItemsSource = _layerList;
+            CurrentLayerCombobox.SelectedIndex = workingIndex;
         }
 
         private void RedoHistory()
@@ -783,6 +853,13 @@ namespace Paint_application
                 }
                 _shapeList.Add((IShape)painter.Clone());
             }
+
+            int workingIndex = CurrentLayerCombobox.SelectedIndex;
+            //_layerList = _layerHistory[_historyIndex];
+            //_layerState = _layerStateHistory[_historyIndex];
+            LayerList.ItemsSource = _layerList;
+            CurrentLayerCombobox.ItemsSource = _layerList;
+            CurrentLayerCombobox.SelectedIndex = workingIndex;
         }
 
         private void Copy()
@@ -914,5 +991,86 @@ namespace Paint_application
             }
         }
 
+        private int GetLayerIndex(string layerName)
+        {
+            int result = -1;
+            
+            for (int i = 0; i < _layerList.Count; i++)
+            {
+                if (layerName == _layerList[i])
+                    result = i;
+            }
+
+            return result;
+        }
+
+        private void LockBtn_Click(object sender, RoutedEventArgs e)
+        {
+            int selected = LayerList.SelectedIndex;
+            
+            if (selected >= _layerState.Count)
+                return;
+
+            bool currentState = _layerState[selected];
+            _layerState[selected] = !currentState;
+        }
+
+        private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RenameLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            int workingIndex = CurrentLayerCombobox.SelectedIndex;
+            int selected = LayerList.SelectedIndex;
+            //show dialog
+            //AddToHistory();
+            CurrentLayerCombobox.SelectedIndex = workingIndex;
+        }
+
+        private void RemoveLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            int idexToRemove = LayerList.SelectedIndex;
+            string layerToRemove = _layerList[idexToRemove];
+            List<int> indexesToRemove = new List<int>();
+
+            for  (int i = 0; i < _shapeList.Count; i++)
+            {
+                if (_shapeList[i].Layer == layerToRemove)
+                {
+                    indexesToRemove.Add(i);
+                }
+            }
+
+            if (indexesToRemove.Count > 0)
+            {
+                indexesToRemove.Sort((a, b) => b.CompareTo(a));
+            }
+
+            foreach (int index in indexesToRemove)
+            {
+                _shapeList.RemoveAt(index);
+            }
+
+            WhiteBoard.Children.Clear();
+            EditToolbar.Visibility = Visibility.Hidden;
+            _selectedPainter = null;
+
+            for (int i = 0; i < _shapeList.Count; i++)
+            {
+                Shape _newPainter = (Shape)_shapeList[i].GetShape();
+                _newPainter.Tag = i;
+                _newPainter.MouseDown += PainterMouseDown;
+                WhiteBoard.Children.Add(_newPainter);
+
+                if (_shapeList[i].GetText() != null)
+                {
+                    WhiteBoard.Children.Add(_shapeList[i].GetText());
+                }
+            }
+
+            AddToHistory();
+        }
     }
 }
