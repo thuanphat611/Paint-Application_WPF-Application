@@ -42,11 +42,11 @@ namespace Paint_application
                 if (painter.GetText() == null)
                 {
                     painter.SetText(font, background, foreground, size, TextInput.Text);
-                    WhiteBoard.Children.Add(painter.GetText());
+                    WhiteBoard.Children.Add(painter.RecreateText());
                 }
                 else
                 {
-                    painter.SetText(font, background, foreground, size, TextInput.Text);
+                    painter.EditText(font, background, foreground, size, TextInput.Text);
                 }
             }
             this.Close();

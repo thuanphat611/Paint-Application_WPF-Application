@@ -378,6 +378,11 @@ namespace Paint_application
                         {
                             _end = e.GetPosition(WhiteBoard);
                         }
+                        if (_resizeSquare != null)
+                        {
+                            WhiteBoard.Children.Remove(_resizeSquare);
+                            _resizeSquare = null;
+                        }
                     }
                 }
             }
@@ -424,6 +429,11 @@ namespace Paint_application
                         {
                             EditToolbar.Visibility = Visibility.Hidden;
                             _selectedPainter = null;
+                            if (_resizeSquare != null)
+                            {
+                                WhiteBoard.Children.Remove(_resizeSquare);
+                                _resizeSquare = null;
+                            }
                         }
                         else
                         {
@@ -663,7 +673,8 @@ namespace Paint_application
                         Color color = Color.FromArgb(a, r, g, b);
                         SolidColorBrush brush = new SolidColorBrush(color);
 
-                        Shape _newPainter = (Shape)painter.Convert(style, thickness, brush);//add to list
+                        painter.Convert(style, thickness, brush);//add to list
+                        Shape _newPainter = (Shape)painter.GetShape();//add to list
                         _newPainter.Tag = _shapeList.Count;
                         _newPainter.MouseDown += PainterMouseDown;
                         WhiteBoard.Children.Add(_newPainter);
@@ -940,7 +951,7 @@ namespace Paint_application
 
                         if (painter.GetText() != null)
                         {
-                            WhiteBoard.Children.Add(painter.GetText());
+                            WhiteBoard.Children.Add(painter.RecreateText());
                         }
                         _shapeList.Add((IShape)painter.Clone());
                     }
@@ -963,7 +974,7 @@ namespace Paint_application
 
                         if (painter.GetText() != null)
                         {
-                            WhiteBoard.Children.Add(painter.GetText());
+                            WhiteBoard.Children.Add(painter.RecreateText());
                         }
                         _shapeList.Add((IShape)painter.Clone());
                     }

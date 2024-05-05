@@ -166,27 +166,24 @@ namespace MyTriangle
             this.background = background;
             this.foreground = foreground;
 
-            if (textWrap == null)
-            {
-                Vector vector = Point.Subtract(_topLeft, _rightBottom);
-                textWrap = new Border();
-                textWrap.BorderThickness = new Thickness(0);
-                textWrap.Width = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
-                textWrap.Height = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
+            Vector vector = Point.Subtract(_topLeft, _rightBottom);
+            textWrap = new Border();
+            textWrap.BorderThickness = new Thickness(0);
+            textWrap.Width = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
+            textWrap.Height = vector.Length - thickness * 2 > 0 ? vector.Length - thickness * 2 : 50;
 
-                textBlock = new TextBlock();
-                textBlock.TextWrapping = TextWrapping.Wrap;
-                textBlock.TextAlignment = TextAlignment.Center;
-                textBlock.VerticalAlignment = VerticalAlignment.Center;
-                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                textWrap.Child = textBlock;
+            textBlock = new TextBlock();
+            textBlock.TextWrapping = TextWrapping.Wrap;
+            textBlock.TextAlignment = TextAlignment.Center;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textWrap.Child = textBlock;
 
-                Point center = new Point((_topLeft.X + _rightBottom.X) / 2, (_topLeft.Y + _rightBottom.Y) / 2);
-                double top = center.X - (textWrap.Height / 2) + this.thickness;
-                double left = center.Y - (textWrap.Width / 2) + this.thickness;
-                Canvas.SetLeft(textWrap, top);
-                Canvas.SetTop(textWrap, left);
-            }
+            Point center = new Point((_topLeft.X + _rightBottom.X) / 2, (_topLeft.Y + _rightBottom.Y) / 2);
+            double top = center.X - (textWrap.Height / 2) + this.thickness;
+            double left = center.Y - (textWrap.Width / 2) + this.thickness;
+            Canvas.SetLeft(textWrap, top);
+            Canvas.SetTop(textWrap, left);
 
             textBlock.Text = text;
             textBlock.FontFamily = new FontFamily(font);
@@ -207,6 +204,28 @@ namespace MyTriangle
                 return textWrap;
             else
                 return null;
+        }
+
+        public Border RecreateText()
+        {
+            string text = textBlock.Text;
+            string font = textBlock.FontFamily.Source;
+            double size = textBlock.FontSize;
+
+            SetText(font, this.background, this.foreground, size, text);
+            return textWrap;
+        }
+
+        public void EditText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            this.background = background;
+            this.foreground = foreground;
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
         }
 
         public Object[] GetProperty()

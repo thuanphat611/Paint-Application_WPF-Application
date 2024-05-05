@@ -18,7 +18,9 @@ namespace Shapes
         double GetRotationDeg();
         Point[] GetPoints();
         void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text);
+        void EditText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text);
         Border GetText();
+        Border RecreateText();
         Object[] GetProperty();
     }
 

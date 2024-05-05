@@ -189,24 +189,21 @@ namespace MyStar
             this.background = background;
             this.foreground = foreground;
 
-            if (textWrap == null)
-            {
-                textWrap = new Border();
-                textWrap.BorderThickness = new Thickness(0);
-                double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
-                textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
-                textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+            textWrap = new Border();
+            textWrap.BorderThickness = new Thickness(0);
+            double outerRadius = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
+            textWrap.Width = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
+            textWrap.Height = outerRadius - thickness * 2 > 0 ? outerRadius - thickness * 2 : 50;
 
-                textBlock = new TextBlock();
-                textBlock.TextWrapping = TextWrapping.Wrap;
-                textBlock.TextAlignment = TextAlignment.Center;
-                textBlock.VerticalAlignment = VerticalAlignment.Center;
-                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                textWrap.Child = textBlock;
+            textBlock = new TextBlock();
+            textBlock.TextWrapping = TextWrapping.Wrap;
+            textBlock.TextAlignment = TextAlignment.Center;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textWrap.Child = textBlock;
 
-                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
-                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
-            }
+            Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+            Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
 
             textBlock.Text = text;
             textBlock.FontFamily = new FontFamily(font);
@@ -227,6 +224,28 @@ namespace MyStar
                 return textWrap;
             else
                 return null;
+        }
+
+        public Border RecreateText()
+        {
+            string text = textBlock.Text;
+            string font = textBlock.FontFamily.Source;
+            double size = textBlock.FontSize;
+
+            SetText(font, this.background, this.foreground, size, text);
+            return textWrap;
+        }
+
+        public void EditText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            this.background = background;
+            this.foreground = foreground;
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
         }
 
         public Object[] GetProperty()

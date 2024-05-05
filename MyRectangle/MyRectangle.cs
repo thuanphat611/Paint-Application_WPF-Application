@@ -177,36 +177,35 @@ namespace MyRectangle
 
         public void SetText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
         {
+            textWrap = null;
+            textBlock = null;
             this.background = background;
             this.foreground = foreground;
 
-            if (textWrap == null)
+            textWrap = new Border();
+            textWrap.BorderThickness = new Thickness(0);
+
+            if (ShiftPressed)
             {
-                textWrap = new Border();
-                textWrap.BorderThickness = new Thickness(0);
-
-                if (ShiftPressed)
-                {
-                    double wrapSize = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
-                    textWrap.Width = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
-                    textWrap.Height = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
-                }
-                else
-                {
-                    textWrap.Width = Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 > 0 ? Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 : 50;
-                    textWrap.Height = Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 > 0 ? Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 : 50;
-                }
-
-                textBlock = new TextBlock();
-                textBlock.TextWrapping = TextWrapping.Wrap;
-                textBlock.TextAlignment = TextAlignment.Center;
-                textBlock.VerticalAlignment = VerticalAlignment.Center;
-                textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                textWrap.Child = textBlock;
-
-                Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
-                Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
+                double wrapSize = Math.Max(Math.Abs(_rightBottom.X - _topLeft.X), Math.Abs(_rightBottom.Y - _topLeft.Y));
+                textWrap.Width = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
+                textWrap.Height = wrapSize - thickness * 2 > 0 ? wrapSize - thickness * 2 : 50;
             }
+            else
+            {
+                textWrap.Width = Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 > 0 ? Math.Abs(_rightBottom.X - _topLeft.X) - thickness * 2 : 50;
+                textWrap.Height = Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 > 0 ? Math.Abs(_rightBottom.Y - _topLeft.Y) - thickness * 2 : 50;
+            }
+
+            textBlock = new TextBlock();
+            textBlock.TextWrapping = TextWrapping.Wrap;
+            textBlock.TextAlignment = TextAlignment.Center;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textWrap.Child = textBlock;
+
+            Canvas.SetLeft(textWrap, _topLeft.X + this.thickness);
+            Canvas.SetTop(textWrap, _topLeft.Y + this.thickness);
 
             textBlock.Text = text;
             textBlock.FontFamily = new FontFamily(font);
@@ -227,6 +226,30 @@ namespace MyRectangle
                 return textWrap;
             else
                 return null;
+        }
+
+        public void EditText(string font, SolidColorBrush background, SolidColorBrush foreground, double size, string text)
+        {
+            this.background = background;
+            this.foreground = foreground;
+
+            textBlock.Text = text;
+            textBlock.FontFamily = new FontFamily(font);
+            textBlock.Foreground = foreground;
+            textBlock.Background = background;
+            textBlock.FontSize = size;
+        }
+
+        public Border RecreateText() {
+            string text = textBlock.Text;
+            string font = textBlock.FontFamily.Source;
+            double size = textBlock.FontSize;
+
+            textWrap = null;
+            textBlock = null;
+
+            SetText(font, this.background, this.foreground, size, text);
+            return textWrap;
         }
 
         public Object[] GetProperty()
