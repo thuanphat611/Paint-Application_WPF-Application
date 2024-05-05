@@ -25,7 +25,7 @@ namespace MyRectangle
 
         public string Name => "Rectangle";
         public bool ShiftPressed { get; set; } = false;
-        string IShape.Layer { get; set; } = "";
+        public string Layer { get; set; } = "";
 
         public void AddPoints(Point point1, Point point2)
         {
@@ -146,6 +146,7 @@ namespace MyRectangle
             Convert(this.style, this.thickness, this.brush);
             if (this.rotateDeg != null)
                 AddRotation(this.rotateDeg);
+            UpdateShape(this._topLeft, this._rightBottom);
             return shape;
         }
 
@@ -231,9 +232,9 @@ namespace MyRectangle
         public Object[] GetProperty()
         {
             if (textBlock != null)
-                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, true, textBlock.FontFamily.Source, background, foreground, textBlock.FontSize, textBlock.Text];
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, Layer, true, textBlock.FontFamily.Source, background, foreground, textBlock.FontSize, textBlock.Text];
             else
-                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, false];
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, Layer, false];
         }
     }
 }

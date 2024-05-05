@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
+using System.Windows.Controls.Primitives;
 
 namespace Paint_application
 {
@@ -589,28 +590,29 @@ namespace Paint_application
                     writer.Write(color.B);
 
                     writer.Write((double)properties[7]);//rotateDeg
+                    writer.Write((string)properties[8]);//Layer
 
-                    bool haveText = (bool)properties[8];//have text or not
+                    bool haveText = (bool)properties[9];//have text or not
                     writer.Write(haveText);
                     if (!haveText)
                         continue;
 
-                    writer.Write((string)properties[9]);//textBlock.FontFamily.Source
+                    writer.Write((string)properties[10]);//textBlock.FontFamily.Source
 
-                    color = ((SolidColorBrush)properties[10]).Color;//background
+                    color = ((SolidColorBrush)properties[11]).Color;//background
                     writer.Write(color.A);
                     writer.Write(color.R);
                     writer.Write(color.G);
                     writer.Write(color.B);
 
-                    color = ((SolidColorBrush)properties[11]).Color;//foreground
+                    color = ((SolidColorBrush)properties[12]).Color;//foreground
                     writer.Write(color.A);
                     writer.Write(color.R);
                     writer.Write(color.G);
                     writer.Write(color.B);
 
-                    writer.Write((double)properties[12]);//size
-                    writer.Write((string)properties[13]);//text
+                    writer.Write((double)properties[13]);//size
+                    writer.Write((string)properties[14]);//text
                 }
             }
         }
@@ -669,6 +671,13 @@ namespace Paint_application
                         double rotateDeg = reader.ReadDouble();//rotateDeg
                         painter.AddRotation(rotateDeg);
 
+                        string layer = reader.ReadString();//Layer
+                        painter.Layer = layer;
+                        if (GetLayerIndex(layer) == -1)
+                        {
+                            _layerList.Add(layer);
+                            _layerState.Add(true);
+                        }
                         bool haveText =  reader.ReadBoolean();//have text or not
 
                         if (haveText)
@@ -695,9 +704,10 @@ namespace Paint_application
                             painter.SetText(font, background, foreground, textSize, text);
                             WhiteBoard.Children.Add(painter.GetText());
                         }
-                        //DUNG QUEN _LAYERLIST VA LAYERSTATE--------------------------------------------------------------------------------------
                         _shapeList.Add((IShape)painter.Clone());
                     }
+                    CurrentLayerCombobox.SelectedIndex = _layerList.Count - 1;
+                    CheckLayerState();
                 }
             }
             catch (Exception e)
@@ -754,7 +764,6 @@ namespace Paint_application
                     layerHistoryItem.Add(layer);
                 }
                 _layerHistory.Add(layerHistoryItem);
-                //MessageBox.Show(_layerHistory.Count.ToString());
 
                 foreach (bool state in _layerState)
                 {
@@ -782,7 +791,6 @@ namespace Paint_application
                     layerHistoryItem.Add(layer);
                 }
                 _layerHistory.Add(layerHistoryItem);
-                //MessageBox.Show(_layerHistory.Count.ToString());
 
                 foreach (bool state in _layerState)
                 {
@@ -792,6 +800,7 @@ namespace Paint_application
 
                 _historyIndex = _history.Count - 1;
             }
+            //MessageBox.Show(_history.Count + " " + _layerHistory.Count + " " + _layerStateHistory.Count);
         }
 
         private void UndoHistory()
@@ -826,6 +835,7 @@ namespace Paint_application
             LayerList.ItemsSource = _layerList;
             CurrentLayerCombobox.ItemsSource = _layerList;
             CurrentLayerCombobox.SelectedIndex = workingIndex < _layerList.Count - 1? workingIndex : _layerList.Count - 1;
+            CheckLayerState();
         }
 
         private void RedoHistory()
@@ -860,7 +870,7 @@ namespace Paint_application
             LayerList.ItemsSource = _layerList;
             CurrentLayerCombobox.ItemsSource = _layerList;
             CurrentLayerCombobox.SelectedIndex = workingIndex < _layerList.Count - 1 ? workingIndex : _layerList.Count - 1;
-
+            CheckLayerState();
         }
 
         private void Copy()
@@ -1019,12 +1029,31 @@ namespace Paint_application
 
             bool currentState = _layerState[selected];
             _layerState[selected] = !currentState;
+
+            if (_layerState[selected] )
+            {
+                ListViewItem listViewItem = LayerList.ItemContainerGenerator.ContainerFromItem(LayerList.SelectedItem) as ListViewItem;
+                if (listViewItem != null)
+                {
+                    listViewItem.Foreground = Brushes.Black;
+                }
+            }
+            else
+            {
+                ListViewItem listViewItem = LayerList.ItemContainerGenerator.ContainerFromItem(LayerList.SelectedItem) as ListViewItem;
+                if (listViewItem != null)
+                {
+                    listViewItem.Foreground = Brushes.Red;
+                }
+            }
+            AddToHistory();
         }
 
         private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
         {
             AddLayerWindow dialog = new AddLayerWindow(this._layerList, this._layerState, -1);
             dialog.ShowDialog();
+            AddToHistory();
         }
 
         private void RenameLayerBtn_Click(object sender, RoutedEventArgs e)
@@ -1109,6 +1138,29 @@ namespace Paint_application
             _layerState.RemoveAt(indexToRemove);
             CurrentLayerCombobox.SelectedIndex = workingIndex != indexToRemove ? workingIndex : 0;
             AddToHistory();
+        }
+
+        private void CheckLayerState()
+        {
+            for (int i = 0; i < _layerState.Count; i++)
+            {
+                if (_layerState[i])
+                {
+                    ListViewItem listViewItem = LayerList.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+                    if (listViewItem != null)
+                    {
+                        listViewItem.Foreground = Brushes.Black;
+                    }
+                }
+                else
+                {
+                    ListViewItem listViewItem = LayerList.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+                    if (listViewItem != null)
+                    {
+                        listViewItem.Foreground = Brushes.Red;
+                    }
+                }
+            }
         }
     }
 }

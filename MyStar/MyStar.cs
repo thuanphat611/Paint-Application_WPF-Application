@@ -1,5 +1,6 @@
 
 using Shapes;
+using System.Reflection.Emit;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -23,7 +24,7 @@ namespace MyStar
 
         public string Name => "Star";
         public bool ShiftPressed { get; set; } = false;
-        string IShape.Layer { get; set; } = "";
+        public string Layer { get; set; } = "";
 
 
         public void AddPoints(Point point1, Point point2)
@@ -151,6 +152,7 @@ namespace MyStar
 
             if (this.rotateDeg != null)
                 AddRotation(this.rotateDeg);
+            UpdateShape(this._topLeft, this._rightBottom);
             return shape;
         }
 
@@ -230,9 +232,9 @@ namespace MyStar
         public Object[] GetProperty()
         {
             if (textBlock != null)
-                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, true, textBlock.FontFamily.Source, background, foreground, textBlock.FontSize, textBlock.Text];
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, Layer, true, textBlock.FontFamily.Source, background, foreground, textBlock.FontSize, textBlock.Text];
             else
-                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, false];
+                return [Name, ShiftPressed, _topLeft, _rightBottom, style, thickness, brush, rotateDeg, Layer, false];
         }
     }
 }

@@ -35,10 +35,19 @@ namespace Paint_application
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
+            string text = TextInput.Text;
+
+            foreach (string layer in _layerList)
+            {
+                if (layer == text)
+                {
+                    MessageBox.Show("Layer name exists");
+                    return;
+                }
+            }
+
             if (indexToRename == -1)
             {
-                string text = TextInput.Text;
-
                 if (text.Length == 0)
                     return;
 
@@ -49,8 +58,6 @@ namespace Paint_application
             }
             else
             {
-                string text = TextInput.Text;
-
                 if (text.Length == 0)
                     return;
 

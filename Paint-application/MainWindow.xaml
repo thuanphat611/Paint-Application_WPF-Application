@@ -38,12 +38,12 @@
                 </ComboBox>
                 <ComboBox x:Name="ShapeCombobox" Width="80" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="ShapeCombobox_SelectionChanged"/>
                 <ComboBox Name="ThicknessCombobox" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="ThicknessCombobox_SelectionChanged"/>
-                <ComboBox Name="StyleCombobox" Width="100" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="StyleCombobox_SelectionChanged">
-                    <ComboBoxItem Content="Line"/>
-                    <ComboBoxItem Content="Dash"/>
-                    <ComboBoxItem Content="Dot"/>
-                    <ComboBoxItem Content="Dash dot"/>
-                    <ComboBoxItem Content="Dash dot dot"/>
+                <ComboBox Name="StyleCombobox" Width="50" VerticalAlignment="Center" Margin="10,0,0,0" SelectionChanged="StyleCombobox_SelectionChanged">
+                    <ComboBoxItem Content="___"/>
+                    <ComboBoxItem Content="_ _"/>
+                    <ComboBoxItem Content="..."/>
+                    <ComboBoxItem Content="_."/>
+                    <ComboBoxItem Content="_.."/>
                 </ComboBox>
                 <ComboBox x:Name="ColorCombobox" Height="25" Margin="10,0,0,0" HorizontalContentAlignment="Stretch" SelectionChanged="colorListBox_SelectionChanged">
                     <ComboBox.ItemTemplate>
